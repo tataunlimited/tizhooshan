@@ -1,0 +1,1584 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#b0284f">
+<meta name="robots" content="noindex">
+<title>برنامهٔ تیزهوشان ۱۴۰۶</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@300..800&display=swap">
+<style>
+/* Layout: an exam answer sheet (پاسخ‌برگ) turned into a daily planner — dropout-ink rules,
+   pencil-filled bubbles for finished tasks; one centered column, max 1000px. */
+:root {
+  --paper: #fbfbfa;
+  --sheet: #ffffff;
+  --tint: #fbedf1;
+  --ink: #1c1d21;
+  --ink-2: #52535c;
+  --ink-3: #85868f;
+  --drop: #c22e5a;
+  --drop-line: #efbccb;
+  --on-drop: #ffffff;
+  --pencil: #2a2b31;
+  --ok: #26734f;
+  --warn: #9a6200;
+  --c-hoosh: #c22e5a;
+  --c-riazi: #245fa3;
+  --c-olum: #2a744c;
+  --c-farsi: #9d5317;
+  --c-motaleat: #6c5838;
+  --c-payam: #67489b;
+  --c-arabi: #73661a;
+  --c-misc: #64656e;
+  --display: "Lalezar", "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
+  --body: "Vazirmatn", Tahoma, "Segoe UI", "Noto Sans Arabic", sans-serif;
+  --gut: clamp(16px, 4vw, 32px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #131417; --sheet: #1b1c20; --tint: #2b1a21; --ink: #ecebef; --ink-2: #b6b5bd; --ink-3: #8a8992;
+    --drop: #ef6b91; --drop-line: #5b3140; --on-drop: #1c0b12; --pencil: #e2e1e6; --ok: #62c79a; --warn: #e4a947;
+    --c-hoosh: #ef6b91; --c-riazi: #7cabe9; --c-olum: #6fc697; --c-farsi: #e5a067; --c-motaleat: #cbb083; --c-payam: #b195e6; --c-arabi: #d0c266; --c-misc: #a8a7b0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #131417; --sheet: #1b1c20; --tint: #2b1a21; --ink: #ecebef; --ink-2: #b6b5bd; --ink-3: #8a8992;
+  --drop: #ef6b91; --drop-line: #5b3140; --on-drop: #1c0b12; --pencil: #e2e1e6; --ok: #62c79a; --warn: #e4a947;
+  --c-hoosh: #ef6b91; --c-riazi: #7cabe9; --c-olum: #6fc697; --c-farsi: #e5a067; --c-motaleat: #cbb083; --c-payam: #b195e6; --c-arabi: #d0c266; --c-misc: #a8a7b0;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.75; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.app { max-width: 1000px; margin-inline: auto; padding-inline: var(--gut); padding-block: 18px 80px; }
+h1, h2, h3 { text-wrap: balance; }
+p { margin: 0; }
+.muted { color: var(--ink-2); }
+.eyebrow { font-size: 13px; color: var(--drop); font-weight: 600; margin: 0 0 2px; }
+.c-hoosh { color: var(--c-hoosh); } .c-riazi { color: var(--c-riazi); } .c-olum { color: var(--c-olum); } .c-farsi { color: var(--c-farsi); }
+.c-motaleat { color: var(--c-motaleat); } .c-payam { color: var(--c-payam); } .c-arabi { color: var(--c-arabi); } .c-misc { color: var(--c-misc); }
+
+/* header */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 28px; padding-block: 6px 16px; border-bottom: 2px solid var(--drop); }
+.top h1 { font-family: var(--display); font-weight: 400; font-size: clamp(32px, 6.4vw, 48px); line-height: 1.15; margin: 0; }
+.top h1 .yr { color: var(--drop); }
+.top .sub { margin-top: 4px; color: var(--ink-2); font-size: 14px; }
+.count { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.digits { display: flex; gap: 4px; direction: ltr; }
+.digits span { width: 34px; height: 44px; border: 1.5px solid var(--drop); border-radius: 6px; display: grid; place-items: center; font-family: var(--display); font-size: 27px; line-height: 1; padding-top: 4px; background: var(--sheet); }
+.count b { display: block; font-size: 15px; }
+.count small { display: block; color: var(--ink-2); font-size: 12.5px; line-height: 1.5; }
+
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding-block: 10px 6px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); flex: none; }
+.pill.ok::before { background: var(--ok); } .pill.warn::before { background: var(--warn); }
+
+.btn { border: 1.5px solid var(--drop-line); background: var(--sheet); border-radius: 8px; padding: 6px 14px; cursor: pointer; font-size: 14px; line-height: 1.6; }
+.btn:hover { border-color: var(--drop); }
+.btn.sm { padding: 3px 10px; font-size: 13px; }
+.btn.primary { background: var(--drop); border-color: var(--drop); color: var(--on-drop); font-weight: 600; }
+.btn[disabled] { opacity: .4; cursor: default; }
+.btn:focus-visible, .tab:focus-visible, .sd:focus-visible, .chip:focus-visible, summary:focus-visible { outline: 2px solid var(--drop); outline-offset: 2px; }
+
+/* tabs */
+.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+  border-bottom: 1px solid var(--drop-line); margin-inline: calc(-1 * var(--gut)); padding-inline: var(--gut); margin-bottom: 18px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { border: 0; background: none; padding: 11px 12px 9px; font-size: 15px; color: var(--ink-2); cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--drop); font-weight: 700; }
+@media (max-width: 480px) { .tab { padding-inline: 8px; font-size: 14px; } }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sr-h { font-size: 20px; margin: 0 0 10px; }
+
+/* answer rows */
+.rows { display: flex; flex-direction: column; }
+.row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 14px; align-items: start; width: 100%; text-align: start; background: none; border: 0;
+  border-top: 1px dashed var(--drop-line); padding: 12px 2px; cursor: pointer; border-radius: 0; }
+.row:first-child { border-top: 0; }
+.row:focus-visible { outline: 2px solid var(--drop); outline-offset: -2px; border-radius: 6px; }
+.row[aria-disabled="true"] { cursor: default; }
+.bub { width: 32px; height: 21px; border: 1.6px solid var(--drop); border-radius: 50%; display: grid; place-items: center; margin-top: 4px; position: relative; overflow: hidden; }
+.bub i { font-style: normal; font-size: 11px; line-height: 1; color: var(--drop); }
+.bub::after { content: ""; position: absolute; inset: 0; background: var(--pencil);
+  background: repeating-linear-gradient(-32deg, var(--pencil) 0 2px, color-mix(in srgb, var(--pencil) 74%, transparent) 2px 3.2px);
+  transform: scale(0); border-radius: 50%; transition: transform .18s ease-out; }
+.row[aria-checked="true"] .bub { border-color: var(--pencil); }
+.row[aria-checked="true"] .bub::after { transform: scale(1.15); }
+.row:hover .bub { box-shadow: 0 0 0 3px var(--tint); }
+.tx { min-width: 0; }
+.meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+.meta b { font-weight: 700; font-size: 13px; }
+.tt { display: block; font-size: 15px; color: var(--ink); }
+.row[aria-checked="true"] .tt { color: var(--ink-3); }
+.row.compact { padding: 9px 0; gap: 2px 10px; }
+.row.compact .tt { font-size: 14px; line-height: 1.65; }
+.row.compact .bub { width: 28px; height: 19px; margin-top: 3px; }
+
+/* today */
+.daysheet { background: var(--sheet); border: 1px solid var(--drop-line); border-radius: 12px; padding: 4px 18px 12px; }
+.dayhead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 10px 16px; padding-block: 14px 10px; border-bottom: 1.5px solid var(--drop); }
+.dayhead h2, .weekhead h2 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 5vw, 34px); margin: 0; line-height: 1.25; }
+.dnav { display: flex; gap: 6px; align-items: center; }
+.dprog { display: grid; grid-template-columns: auto minmax(60px, 1fr) auto; gap: 12px; align-items: center; font-size: 13px; color: var(--ink-2); padding-block: 10px 4px; font-variant-numeric: tabular-nums; }
+.meter { height: 6px; border-radius: 3px; background: var(--tint); overflow: hidden; min-width: 40px; }
+.meter i { display: block; height: 100%; background: var(--drop); }
+.notes { list-style: none; margin: 8px 0 0; padding: 10px 0 0; border-top: 1px dashed var(--drop-line); display: grid; gap: 4px; font-size: 13.5px; color: var(--ink-2); }
+.notes li::before { content: "◂ "; color: var(--drop); }
+.empty { padding: 26px 0 18px; color: var(--ink-2); font-size: 15px; }
+
+.strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-block: 14px; }
+.sd { border: 1px solid var(--drop-line); border-radius: 8px; padding: 6px 2px 4px; background: var(--sheet); cursor: pointer; display: grid; gap: 3px; justify-items: center; font-size: 13px; line-height: 1.3; color: var(--ink-2); }
+.sd .fill { width: 24px; height: 15px; border: 1.4px solid var(--drop); border-radius: 50%; background: linear-gradient(to top, var(--pencil) var(--p), transparent var(--p)); }
+.sd .fill.none { border-style: dashed; opacity: .55; }
+.sd[aria-current="date"] { border-color: var(--drop); color: var(--ink); font-weight: 700; }
+.sd.sel { background: var(--tint); }
+.sd[disabled] { visibility: hidden; }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; margin-top: 12px; }
+.card { background: var(--sheet); border: 1px solid var(--drop-line); border-radius: 12px; padding: 14px 18px; min-width: 0; }
+.card h3 { margin: 0 0 4px; font-size: 17px; }
+.card p + p { margin-top: 8px; }
+.tip { font-size: 15px; }
+.streak { margin-top: 10px !important; font-size: 13px; color: var(--ink-2); }
+.method { margin-top: 12px; }
+.method summary { cursor: pointer; font-weight: 600; }
+.method dl { margin: 10px 0 0; display: grid; gap: 8px; }
+.method dt { font-weight: 700; font-size: 13.5px; }
+.method dd { margin: 0; font-size: 14px; color: var(--ink-2); }
+
+/* week */
+.weekhead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; padding-bottom: 12px; border-bottom: 1.5px solid var(--drop); }
+.bigpct { display: grid; justify-items: start; line-height: 1.1; }
+.bigpct b { font-family: var(--display); font-weight: 400; font-size: 40px; color: var(--drop); }
+.bigpct span { font-size: 13px; color: var(--ink-2); }
+.subjs { display: flex; flex-wrap: wrap; gap: 8px 18px; padding-block: 12px; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.sbar { display: inline-grid; grid-template-columns: auto auto; gap: 2px 8px; align-items: center; }
+.sbar .meter { grid-column: 1 / -1; height: 4px; }
+.wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 12px; }
+.wday { background: var(--sheet); border: 1px solid var(--drop-line); border-radius: 12px; padding: 10px 14px 8px; min-width: 0; }
+.wday.today { border-color: var(--drop); box-shadow: inset 0 0 0 1px var(--drop); }
+.wday h3 { font-size: 15px; margin: 0 0 4px; display: flex; justify-content: space-between; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--drop-line); font-variant-numeric: tabular-nums; }
+.wday .tag { font-size: 12.5px; color: var(--ink-3); margin-top: 4px; }
+.wday .rest { color: var(--ink-2); font-size: 14px; padding-block: 10px; }
+
+.lock { margin-bottom: 18px; border-color: var(--drop); }
+.lock .frow { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.report { margin-top: 18px; }
+.report textarea { width: 100%; min-height: 110px; border: 1.5px solid var(--drop-line); border-radius: 8px; background: var(--paper); padding: 8px 10px; font-size: 13px; resize: vertical; direction: rtl; }
+.report .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
+
+/* road */
+.sec { margin-top: 26px; }
+.sec > h2 { font-size: 20px; margin: 0 0 10px; }
+.share { display: flex; height: 28px; border-radius: 6px; overflow: hidden; border: 1px solid var(--drop-line); }
+.share span { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 13.5px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 6px; vertical-align: middle; }
+.tblwrap { overflow-x: auto; margin-top: 12px; }
+.tbl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
+.tbl th, .tbl td { padding: 8px 10px; border-bottom: 1px dashed var(--drop-line); text-align: start; white-space: nowrap; }
+.tbl th { font-weight: 600; color: var(--ink-2); font-size: 13px; border-bottom: 1.5px solid var(--drop); }
+.tbl td.wrap { white-space: normal; }
+.gate { border: 1.5px solid var(--drop); background: var(--tint); }
+.gate h3 { color: var(--drop); }
+.facts { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.facts li { padding-inline-start: 16px; position: relative; }
+.facts li::before { content: ""; position: absolute; inset-inline-start: 0; top: .72em; width: 7px; height: 5px; border: 1.3px solid var(--drop); border-radius: 50%; }
+.dates { display: grid; gap: 0; }
+.dates > div { display: grid; grid-template-columns: minmax(110px, 150px) minmax(0, 1fr); gap: 4px 16px; padding-block: 10px; border-top: 1px dashed var(--drop-line); }
+.dates > div:first-child { border-top: 0; }
+.dates b { font-weight: 700; }
+.tl { display: grid; gap: 3px; direction: rtl; margin-bottom: 14px; position: relative; padding-top: 18px; }
+.tl .seg { height: 14px; border-radius: 3px; background: var(--tint); border: 1px solid var(--drop-line); }
+.tl .seg.cur { background: var(--drop); border-color: var(--drop); }
+.tl .lab { font-size: 12px; color: var(--ink-3); text-align: center; white-space: nowrap; overflow: hidden; }
+.tl .now { position: absolute; top: 0; font-size: 11.5px; color: var(--drop); font-weight: 700; transform: translateX(50%); white-space: nowrap; }
+.phases { display: grid; gap: 12px; }
+.phase { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr); gap: 8px 22px; }
+.phase.cur { border-color: var(--drop); box-shadow: inset 0 0 0 1px var(--drop); }
+.phase .when { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.phase .when b { display: block; font-family: var(--display); font-weight: 400; font-size: 24px; color: var(--ink); line-height: 1.3; }
+.phase ul { margin: 8px 0 0; padding-inline-start: 18px; font-size: 14px; color: var(--ink-2); }
+.phase .pm { margin-top: 10px; display: grid; grid-template-columns: minmax(60px, 1fr) auto; gap: 10px; align-items: center; font-size: 12.5px; color: var(--ink-3); }
+@media (max-width: 640px) { .phase { grid-template-columns: minmax(0, 1fr); } .dates > div { grid-template-columns: minmax(0, 1fr); } }
+
+/* mocks */
+.mform { display: grid; gap: 14px; }
+.frow { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; }
+.frow label { display: grid; gap: 4px; font-size: 13px; color: var(--ink-2); min-width: 0; }
+.inp { border: 1.5px solid var(--drop-line); border-radius: 7px; background: var(--paper); padding: 6px 9px; min-width: 0; }
+.inp:focus { outline: 2px solid var(--drop); outline-offset: 0; border-color: var(--drop); }
+.inp.num { width: 64px; text-align: center; font-variant-numeric: tabular-nums; }
+.inp.title { width: min(100%, 300px); }
+.mgrid { display: grid; max-width: 520px; grid-template-columns: minmax(0, 1fr) 70px 70px 64px; gap: 6px 10px; align-items: center; font-size: 14px; }
+.mgrid .h { font-size: 12.5px; color: var(--ink-3); }
+.mgrid .of { font-size: 12.5px; color: var(--ink-3); text-align: center; font-variant-numeric: tabular-nums; }
+.mgrid .sep { grid-column: 1 / -1; border-top: 1px dashed var(--drop-line); }
+.prev { font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.prev b { color: var(--ink); }
+.err { color: var(--drop); font-size: 13.5px; }
+.err:empty, .prev:empty { display: none; }
+.chart { width: 100%; height: auto; display: block; margin-top: 8px; }
+.chart text { font-family: var(--body); font-size: 11px; fill: var(--ink-3); }
+.del { border: 0; background: none; color: var(--ink-3); cursor: pointer; font-size: 13px; padding: 2px 6px; }
+.del:hover { color: var(--drop); }
+
+/* books & rules */
+.books { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 12px; }
+.books h3 { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.books h3 small { font-size: 12.5px; color: var(--ink-3); font-weight: 400; }
+.item { padding-block: 10px; border-top: 1px dashed var(--drop-line); }
+.item:first-of-type { border-top: 0; }
+.item .nm { font-weight: 700; }
+.item .pb { color: var(--ink-2); font-weight: 400; }
+.item p { font-size: 14px; color: var(--ink-2); margin-top: 2px; }
+.prio { display: inline-block; font-size: 12px; border: 1px solid var(--drop-line); border-radius: 999px; padding: 0 9px; margin-inline-end: 6px; color: var(--drop); background: var(--tint); }
+.prio.p0 { color: var(--ink-2); background: none; }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.rules p, .rules li { font-size: 14.5px; }
+.rules ul { margin: 6px 0 0; padding-inline-start: 18px; }
+
+/* settings dialog */
+.ovl { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: color-mix(in srgb, var(--ink) 38%, transparent); }
+.dlg { background: var(--sheet); border: 1px solid var(--drop-line); border-radius: 14px; width: min(100%, 470px); max-height: calc(100% - 32px); overflow: auto; padding: 18px 20px; }
+.dlg h2 { margin: 0 0 4px; font-size: 19px; }
+.dlg fieldset { border: 0; padding: 0; margin: 16px 0 0; }
+.dlg legend { font-weight: 700; margin-bottom: 6px; padding: 0; }
+.dlg .hint { font-size: 13px; color: var(--ink-2); margin-top: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1.5px solid var(--drop-line); border-radius: 999px; padding: 3px 13px; background: none; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--drop); border-color: var(--drop); color: var(--on-drop); }
+.dlg .acts { display: flex; gap: 8px; justify-content: flex-start; margin-top: 18px; }
+
+.toast { position: fixed; inset-inline: 0; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); margin-inline: auto; width: max-content; max-width: calc(100% - 32px);
+  background: var(--ink); color: var(--paper); padding: 8px 16px; border-radius: 8px; font-size: 14px; opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; z-index: 40; }
+.toast.show { opacity: 1; transform: none; }
+.foot { margin-top: 34px; padding-top: 12px; border-top: 1px solid var(--drop-line); font-size: 12.5px; color: var(--ink-3); }
+@media (prefers-reduced-motion: reduce) { *, *::after { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="app" id="app" dir="rtl" lang="fa">
+  <header class="top">
+    <div>
+      <h1>برنامهٔ تیزهوشان <span class="yr">۱۴۰۶</span></h1>
+      <p class="sub">آمادگی آزمون ورودی پایهٔ دهم سمپاد و نمونه دولتی، از مهر ۱۴۰۵ تا خرداد ۱۴۰۶</p>
+    </div>
+    <div class="count" id="count"></div>
+  </header>
+  <div class="bar">
+    <span class="pill" id="mode">در حال اتصال…</span>
+    <button type="button" class="btn sm" data-act="settings">تنظیمات</button>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="بخش‌ها">
+    <button type="button" class="tab" role="tab" data-view="today">امروز</button>
+    <button type="button" class="tab" role="tab" data-view="week">هفته</button>
+    <button type="button" class="tab" role="tab" data-view="road">مسیر</button>
+    <button type="button" class="tab" role="tab" data-view="mocks">آزمون‌ها</button>
+    <button type="button" class="tab" role="tab" data-view="books">منابع</button>
+    <button type="button" class="tab" role="tab" data-view="rules">قرارها</button>
+  </nav>
+  <main id="view"></main>
+  <p class="foot">ساختار آزمون، ضریب‌ها و شرط معدل بر اساس دفترچهٔ رسمی ثبت‌نام ۱۴۰۵ است. اگر دفترچهٔ ۱۴۰۶ چیزی را تغییر داد، برنامه را به‌روز کنید.</p>
+  <div id="ovl" class="ovl" hidden></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</div>
+<script>
+/* ===== plan.js : calendar + schedule generator (no DOM) ===== */
+var TZPLAN = (function () {
+  'use strict';
+
+  /* ---------- Jalali calendar (jalaali-js algorithm) ---------- */
+  var BREAKS = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+  function div(a, b) { return ~~(a / b); }
+  function mod(a, b) { return a - ~~(a / b) * b; }
+  function jalCal(jy, withoutLeap) {
+    var bl = BREAKS.length, gy = jy + 621, leapJ = -14, jp = BREAKS[0], jm, jump, leap, n, i;
+    for (i = 1; i < bl; i += 1) {
+      jm = BREAKS[i]; jump = jm - jp;
+      if (jy < jm) break;
+      leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
+      jp = jm;
+    }
+    n = jy - jp;
+    leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
+    if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
+    var leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
+    var march = 20 + leapJ - leapG;
+    if (withoutLeap) return { gy: gy, march: march };
+    if (jump - n < 6) n = n - jump + div(jump + 4, 33) * 33;
+    leap = mod(mod(n + 1, 33) - 1, 4);
+    if (leap === -1) leap = 4;
+    return { leap: leap, gy: gy, march: march };
+  }
+  function g2d(gy, gm, gd) {
+    var d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4) + div(153 * mod(gm + 9, 12) + 2, 5) + gd - 34840408;
+    return d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
+  }
+  function d2g(jdn) {
+    var j = 4 * jdn + 139361631;
+    j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
+    var i = div(mod(j, 1461), 4) * 5 + 308;
+    var gd = div(mod(i, 153), 5) + 1, gm = mod(div(i, 153), 12) + 1;
+    return { gy: div(j, 1461) - 100100 + div(8 - gm, 6), gm: gm, gd: gd };
+  }
+  function j2d(jy, jm, jd) {
+    var r = jalCal(jy, true);
+    return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
+  }
+  function d2j(jdn) {
+    var gy = d2g(jdn).gy, jy = gy - 621, r = jalCal(jy, false), k = jdn - g2d(gy, 3, r.march), jm, jd;
+    if (k >= 0) {
+      if (k <= 185) return { jy: jy, jm: 1 + div(k, 31), jd: mod(k, 31) + 1 };
+      k -= 186;
+    } else {
+      jy -= 1; k += 179;
+      if (r.leap === 1) k += 1;
+    }
+    jm = 7 + div(k, 30); jd = mod(k, 30) + 1;
+    return { jy: jy, jm: jm, jd: jd };
+  }
+  /* Saturday = 0 ... Friday = 6 (JDN 0 was a Monday) */
+  function weekday(jdn) { return (mod(jdn, 7) + 2) % 7; }
+
+  var MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+  var WEEKDAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
+
+  /* ---------- fixed anchors ---------- */
+  var START = g2d(2026, 10, 13);          // سه‌شنبه ۲۱ مهر ۱۴۰۵ — هفتهٔ صفر
+  var W1 = g2d(2026, 10, 17);             // شنبه ۲۵ مهر ۱۴۰۵ — شروع هفتهٔ ۱
+  var WEEKS = 35;                         // تا جمعه ۲۸ خرداد ۱۴۰۶
+  var DEFAULT_EXAM = j2d(1406, 3, 28);    // تاریخ تقریبی آزمون (قابل تغییر در تنظیمات)
+  function weekStart(w) { return w === 0 ? START : W1 + (w - 1) * 7; }
+
+  /* ---------- subjects ---------- */
+  var SUBJ = {
+    hoosh: { l: 'هوش', c: 'hoosh' },
+    hooshK: { l: 'هوش', c: 'hoosh', st: 'hoosh' },
+    riazi: { l: 'ریاضی', c: 'riazi' },
+    riaziL: { l: 'ریاضی', c: 'riazi', st: 'riazi' },
+    olum: { l: 'علوم', c: 'olum' },
+    farsi: { l: 'فارسی', c: 'farsi' },
+    motaleat: { l: 'مطالعات', c: 'motaleat' },
+    payam: { l: 'پیام‌ها', c: 'payam' },
+    arabi: { l: 'عربی', c: 'arabi' },
+    mrur: { l: 'مرور', c: 'misc' },
+    azmoon: { l: 'آزمون', c: 'hoosh' },
+    tahlil: { l: 'تحلیل', c: 'misc' },
+    madrese: { l: 'مدرسه', c: 'misc' },
+    tamas: { l: 'پشتیبان', c: 'misc' },
+    karha: { l: 'کار', c: 'misc' }
+  };
+
+  /* ---------- phases ---------- */
+  var PHASES = [
+    { key: 'p0', n: 'هفتهٔ صفر', t: 'آماده‌سازی', w0: 0, w1: 0,
+      goal: 'کتاب‌ها را بخر، آزمون تشخیصی هوش بده و با برنامه آشنا شو.',
+      pts: ['خرید کتاب‌های اولویت ۱', 'آزمون تشخیصی: دفترچهٔ هوش سال ۱۴۰۰', 'ساختن دفتر اشتباهات'] },
+    { key: 'p1', n: 'فاز ۱', t: 'پایه‌سازی', w0: 1, w1: 9,
+      goal: 'همراه مدرسه جلو برو، ریاضی را از پایه محکم کن و تیپ‌های سؤال هوش را یکی‌یکی یاد بگیر. هدف اصلی این فاز: معدل ۱۹ یا بیشتر در نوبت اول.',
+      pts: ['ریاضی: پیش‌نیازهای هشتم و فصل ۱ تا ۴', 'هوش: ۱۲ تیپ سؤال، هر تیپ سه جلسه', 'علوم فصل ۱ تا ۸ · فارسی درس ۱ تا ۹', 'مطالعات درس ۱ تا ۱۲ · پیام‌ها درس ۱ تا ۷ · عربی درس ۱ تا ۵'] },
+    { key: 'p2', n: 'فاز ۲', t: 'امتحان‌های نوبت اول', w0: 10, w1: 12,
+      goal: 'تمرکز کامل روی امتحان‌های مدرسه. هوش فقط روزی ۲۰ دقیقه، که از دست نرود.',
+      pts: ['اگر امتحان‌های مدرسه زودتر یا دیرتر است، همین سه هفته را با آن هماهنگ کن', 'معدل نوبت اول باید ۱۹ یا بیشتر باشد'] },
+    { key: 'p3', n: 'فاز ۳', t: 'پوشش کامل کتاب‌ها', w0: 13, w1: 22,
+      goal: 'یک هفتهٔ آرام بعد از امتحان‌ها، بعد بقیهٔ کتاب‌ها با تست سطح تیزهوشان، و دور دوم نیمهٔ اول.',
+      pts: ['ریاضی فصل ۵ تا ۸، بعد دور دوم ۱ تا ۸', 'علوم فصل ۹ تا ۱۵ · فارسی درس ۱۰ تا ۱۷', 'هوش زمان‌دار؛ هر دو هفته یک دفترچهٔ کامل ۵۰ سؤالی'] },
+    { key: 'p4', n: 'فاز ۴', t: 'نوروز', w0: 23, w1: 24,
+      goal: 'عید را کامل تعطیل کن؛ بعد پنج روز جمع‌بندی فشرده و اولین آزمون کامل.',
+      pts: ['۲۹ اسفند تا ۴ فروردین: بدون درس', '۷ تا ۱۱ فروردین: روزی حدود ۴ ساعت', '۱۲ فروردین: آزمون کامل سال ۱۴۰۱'] },
+    { key: 'p5', n: 'فاز ۵', t: 'آزمون‌های شبیه‌ساز', w0: 25, w1: 31,
+      goal: 'هر جمعه یک آزمون کامل با شرایط واقعی، تحلیل دقیق غلط‌ها و دور سوم همهٔ درس‌ها. ثبت‌نام آزمون هم در همین فاز است.',
+      pts: ['جمعه‌ها: آزمون ۱۲۵ دقیقه‌ای + تحلیل', 'سؤال‌های واقعی ۱۴۰۲ تا ۱۴۰۵ + آزمون‌های شبیه‌ساز', 'ثبت‌نام در sanjesh.org (پارسال ۸ تا ۱۳ اردیبهشت)'] },
+    { key: 'p6', n: 'فاز ۶', t: 'امتحان‌های خرداد و هفتهٔ آخر', w0: 32, w1: 999,
+      goal: 'امتحان‌های مدرسه را خوب بده، چون معدل کتبی خرداد ۳۰٪ نمرهٔ نمونه دولتی است. هوش را هر روز گرم نگه دار و هفتهٔ آخر فقط مرور سبک.',
+      pts: ['هوش روزانه ۲۵ دقیقه', 'هفتهٔ آخر: دفتر اشتباهات و خلاصه‌ها', 'روز قبل از آزمون: استراحت'] }
+  ];
+  function phaseOfWeek(w) {
+    for (var i = 0; i < PHASES.length; i++) if (w >= PHASES[i].w0 && w <= PHASES[i].w1) return PHASES[i];
+    return PHASES[PHASES.length - 1];
+  }
+
+  /* ---------- weekly templates: [subject, minutes] ---------- */
+  var TPL = {
+    p1: {
+      N1: [['riazi', 50], ['hoosh', 40], ['farsi', 25], ['arabi', 20]],
+      N2: [['riazi', 50], ['hoosh', 40], ['motaleat', 25], ['payam', 20]],
+      N3: [['riazi', 50], ['olum', 40], ['hoosh', 35], ['farsi', 25]],
+      N4: [['olum', 40], ['hoosh', 40], ['farsi', 25], ['arabi', 20]],
+      L1: [['hoosh', 30], ['olum', 30], ['farsi', 25]],
+      L2: [['hoosh', 30], ['riaziL', 30], ['farsi', 25]],
+      T: [['riazi', 50], ['hoosh', 45], ['olum', 30], ['motaleat', 25], ['payam', 20]],
+      F: [['mrur', 40], ['tamas', 10]]
+    },
+    p2: { D: [['madrese', 0], ['hoosh', 20]], F: [['madrese', 0], ['tamas', 10]] },
+    p3a: {
+      N: [['hoosh', 30], ['riazi', 40]],
+      L: [['hoosh', 30], ['olum', 30]],
+      T: [['hoosh', 30], ['riazi', 40], ['olum', 30]],
+      F: [['tamas', 10]]
+    },
+    p3: {
+      N1: [['riazi', 50], ['hoosh', 45], ['farsi', 30], ['arabi', 25]],
+      N2: [['riazi', 50], ['hoosh', 45], ['motaleat', 30], ['payam', 25]],
+      N3: [['riazi', 50], ['olum', 45], ['hoosh', 40], ['farsi', 30]],
+      N4: [['olum', 45], ['hoosh', 45], ['farsi', 30], ['motaleat', 25]],
+      L1: [['hoosh', 35], ['olum', 40], ['farsi', 25]],
+      L2: [['hoosh', 35], ['riaziL', 35], ['motaleat', 25]],
+      T: [['riazi', 50], ['hoosh', 50], ['olum', 45], ['farsi', 30], ['payam', 25]],
+      Fe: [['hooshK', 60], ['tamas', 10]],
+      Fo: [['mrur', 45], ['tamas', 10]]
+    },
+    p5: {
+      N1: [['riazi', 50], ['hoosh', 45], ['farsi', 30], ['arabi', 25]],
+      N2: [['riazi', 50], ['hoosh', 45], ['motaleat', 30], ['payam', 25]],
+      N3: [['olum', 45], ['hoosh', 45], ['riazi', 40], ['farsi', 30]],
+      N4: [['olum', 45], ['hoosh', 45], ['farsi', 30], ['motaleat', 25]],
+      L1: [['hoosh', 35], ['olum', 40], ['farsi', 25]],
+      L2: [['hoosh', 35], ['riaziL', 35], ['payam', 25]],
+      T: [['riazi', 50], ['hoosh', 50], ['olum', 45], ['farsi', 30], ['arabi', 25]],
+      F: [['azmoon', 125], ['tahlil', 60], ['tamas', 10]]
+    },
+    p6: { D: [['madrese', 0], ['hoosh', 25]], F: [['mrur', 30], ['tamas', 10]] },
+    p6m: { D: [['hoosh', 40], ['riazi', 40], ['olum', 30]], F: [['mrur', 30]] }
+  };
+
+  /* ---------- queues: q = ordered items, d = what fills the rest ---------- */
+  function range(a, b, f) { var o = []; for (var i = a; i <= b; i++) o.push(f(i)); return o; }
+  function farsiLessons(a, b) {
+    var o = [];
+    for (var i = a; i <= b; i++) {
+      var head = i === 1 ? 'ستایش و درس 1' : (i === 17 ? 'درس 17 و نیایش' : 'درس ' + i);
+      o.push(head + ': معنی بیت‌ها و متن، لغت‌های مهم و املا');
+      o.push('درس ' + i + ': دستور زبان و آرایه‌های درس + خودارزیابی کتاب');
+      o.push('درس ' + i + ': 15 تست + مرور لغت‌ها');
+    }
+    return o;
+  }
+  var HOOSH_TOPICS = ['دنباله‌ها و الگوهای عددی', 'هوش ریاضی: معماهای عددی، سن، ترازو و کار', 'شمارش: تعداد شکل‌ها، مسیرها و حالت‌ها',
+    'ماتریس‌ها و الگوهای تصویری', 'دید فضایی: مکعب، گسترده و تا کردن کاغذ', 'چرخش، تقارن و تصویر در آینه',
+    'هوش مکانیکی: چرخ‌دنده، تسمه، قرقره و اهرم', 'ساعت‌ها و تقویم', 'هوش کلامی: مترادف، متضاد و نسبت‌های معنایی',
+    'رمزگذاری و نسبت‌های فامیلی', 'منطق: جدول، چیدمان و راستگو و دروغگو', 'درک مطلب و مرتب کردن جمله‌ها'];
+  function hooshLearn() {
+    var o = [];
+    HOOSH_TOPICS.forEach(function (t, i) {
+      var n = 'تیپ ' + (i + 1) + ' · ' + t;
+      o.push(n + ': درسنامه و مثال‌های حل‌شده');
+      o.push(n + ': 20 تمرین بدون زمان، بعد مقایسه با پاسخ تشریحی');
+      o.push(n + ': 15 سؤال در 15 دقیقه + نوشتن ایدهٔ حل غلط‌ها');
+    });
+    return o;
+  }
+  var OLUM = ['مواد و نقش آن‌ها در زندگی', 'رفتار اتم‌ها با یکدیگر', 'به دنبال محیطی بهتر برای زندگی', 'حرکت چیست؟', 'نیرو',
+    'زمین‌ساخت ورقه‌ای', 'آثاری از گذشتهٔ زمین', 'فشار و آثار آن', 'ماشین‌ها', 'نگاهی به فضا', 'گوناگونی جانداران',
+    'دنیای گیاهان', 'جانوران بی‌مهره', 'جانوران مهره‌دار', 'با هم زیستن'];
+  var OLUM_CALC = { 4: 1, 5: 1, 8: 1, 9: 1 };
+  function olumCh(n, extraTests) {
+    var o = ['فصل ' + n + ' (' + OLUM[n - 1] + '): متن کتاب' + (OLUM_CALC[n] ? ' + حل مسئله‌های کتاب' : ' + خلاصهٔ یک‌صفحه‌ای')];
+    if (extraTests) { o.push('فصل ' + n + ': 20 تست تیزهوشان (بخش 1)'); o.push('فصل ' + n + ': 20 تست تیزهوشان (بخش 2) + دفتر اشتباهات'); }
+    else o.push('فصل ' + n + ': ' + (n === 1 || n === 3 || n === 4 || n === 8 || n === 9 ? 25 : 20) + ' تست تیزهوشان + دفتر اشتباهات');
+    return o;
+  }
+  var QURAN = 'قرآن: معنی کلمه‌ها و عبارت‌های قرآنیِ درس‌هایی که در مدرسه خوانده‌اید + 10 تست';
+  function payamL(i) { return 'پیام‌های آسمان درس ' + i + ': متن، آیه‌ها و نکته‌ها + 10 تست'; }
+
+  var Q = {
+    p1: {
+      riazi: { q: [
+        'پیش‌نیاز: کسرها، عددهای صحیح و ترتیب عملیات (مرور ریاضی هشتم) + 20 تمرین',
+        'پیش‌نیاز: عبارت‌های جبری و معادله (مرور ریاضی هشتم) + 15 تمرین',
+        'پیش‌نیاز: توان و جذر (مرور ریاضی هشتم) + 15 تمرین',
+        'فصل 1 مجموعه‌ها · درس 1 و 2: معرفی مجموعه، مجموعه‌های برابر و نمایش آن‌ها',
+        'فصل 1 · درس 3: اجتماع، اشتراک و تفاضل مجموعه‌ها',
+        'فصل 1 · درس 4: مجموعه‌ها و احتمال',
+        'فصل 1: 25 تست سطح تیزهوشان + دفتر اشتباهات',
+        'فصل 2 عددهای حقیقی · درس 1: عددهای گویا',
+        'فصل 2 · درس 2: عددهای حقیقی',
+        'فصل 2 · درس 3: قدر مطلق و محاسبهٔ تقریبی',
+        'فصل 2: 20 تست تیزهوشان (بخش 1)',
+        'فصل 2: 20 تست تیزهوشان (بخش 2) + دفتر اشتباهات',
+        'فصل 3 استدلال و اثبات در هندسه · درس 1: استدلال',
+        'فصل 3 · درس 2: آشنایی با اثبات در هندسه',
+        'فصل 3 · درس 3: هم‌نهشتی مثلث‌ها؛ حالت‌های هم‌نهشتی',
+        'فصل 3 · درس 3: هم‌نهشتی مثلث‌ها؛ تمرین اثبات',
+        'فصل 3 · درس 4: حل مسئله در هندسه',
+        'فصل 3 · درس 5: شکل‌های متشابه',
+        'فصل 3: 20 تست تیزهوشان (بخش 1)',
+        'فصل 3: 20 تست تیزهوشان (بخش 2) + دفتر اشتباهات',
+        'فصل 4 توان و ریشه · درس 1: توان صحیح',
+        'فصل 4 · درس 2: نماد علمی',
+        'فصل 4 · درس 3: ریشه‌گیری',
+        'فصل 4 · درس 4: جمع و تفریق رادیکال‌ها',
+        'فصل 4: 20 تست تیزهوشان (بخش 1)',
+        'فصل 4: 20 تست تیزهوشان (بخش 2) + دفتر اشتباهات',
+        'آمادگی نوبت اول: سؤال‌های امتحانی فصل 1 و 2',
+        'آمادگی نوبت اول: سؤال‌های امتحانی فصل 3',
+        'آمادگی نوبت اول: سؤال‌های امتحانی فصل 4',
+        'آزمونک: 30 تست ترکیبی فصل 1 تا 4 در 45 دقیقه'
+      ], d: ['آمادگی نوبت اول: یک سری نمونه‌سؤال ریاضی از درس‌هایی که مدرسه داده'] },
+      riaziL: { d: ['ریاضی سبک: 10 تمرین از درس‌های همین هفته، بدون نگاه به حل'] },
+      hoosh: { q: hooshLearn(), d: ['هوش ترکیبی: 20 سؤال در 20 دقیقه + بررسی راه‌حل غلط‌ها', 'هوش: تیپی که در آن ضعیف‌تری (از دفتر اشتباهات)، 15 سؤال'] },
+      olum: { q: [].concat(olumCh(1), olumCh(2, true), olumCh(3), olumCh(4), olumCh(5, true), olumCh(6), olumCh(7), olumCh(8),
+        ['آمادگی نوبت اول: سؤال‌های امتحانی علوم فصل 1 تا 4', 'آمادگی نوبت اول: سؤال‌های امتحانی علوم فصل 5 تا 8']),
+        d: ['علوم: 20 تست ترکیبی از فصل‌هایی که خواندی + دفتر اشتباهات'] },
+      farsi: { q: [
+        'پایهٔ دستور 1: جمله، نهاد و گزاره، انواع فعل (مرور هفتم و هشتم)',
+        'پایهٔ دستور 2: مفعول، مسند، متمم، گروه اسمی (هسته و وابسته)',
+        'پایهٔ آرایه‌ها: تشبیه، تشخیص، مراعات‌نظیر، تضاد، کنایه، اغراق'
+      ].concat(farsiLessons(1, 9), [
+        'تاریخ ادبیات درس 1 تا 9: نویسنده‌ها، شاعرها و کتاب‌ها',
+        'آمادگی نوبت اول: لغت و املای درس‌های خوانده‌شده',
+        'آمادگی نوبت اول: نمونه‌سؤال فارسی'
+      ]), d: ['فارسی: 20 لغت + 10 تست از درس‌های خوانده‌شده'] },
+      arabi: { q: ['مرور لغت‌ها و قواعد هفتم و هشتم: فعل ماضی، مضارع و ضمیرها'].concat(
+        range(1, 5, function (i) { return 'عربی درس ' + i + ': لغت‌ها، ترجمهٔ متن، قواعد و تمرین‌های کتاب'; }),
+        ['آمادگی نوبت اول: لغت‌ها و ترجمهٔ درس 1 تا 5 + 10 تست']),
+        d: ['عربی: 20 لغت + ترجمهٔ 5 جمله از درس‌های خوانده‌شده'] },
+      payam: { q: [payamL(1), QURAN, payamL(2), payamL(3), QURAN, payamL(4), payamL(5), QURAN, payamL(6), payamL(7), QURAN,
+        'آمادگی نوبت اول: مرور پیام‌ها درس 1 تا 7'], d: ['پیام‌ها و قرآن: 10 تست از درس‌های خوانده‌شده'] },
+      motaleat: { q: range(1, 12, function (i) { return 'مطالعات درس ' + i + ': متن، نقشه‌ها و جدول‌ها + 10 تست'; })
+        .concat(['آمادگی نوبت اول: مرور مطالعات درس 1 تا 12']), d: ['مطالعات: 15 تست از درس‌های خوانده‌شده'] },
+      mrur: { d: ['مرور هفته: سؤال‌های دفتر اشتباهات را دوباره حل کن + خلاصه‌های هفته'] }
+    },
+    p2: {
+      madrese: { d: ['امتحان‌های نوبت اول: درسِ امتحان بعدی را طبق برنامهٔ مدرسه بخوان'] },
+      hoosh: { d: ['هوش نگهداری: 10 سؤال ترکیبی در 10 دقیقه'] }
+    },
+    p3: {
+      riazi: { q: [
+        'فصل 5 عبارت‌های جبری · درس 1: عبارت‌های جبری و مفهوم اتحاد',
+        'فصل 5 · درس 1: اتحادها، تمرین بیشتر',
+        'فصل 5 · درس 2: چند اتحاد دیگر، تجزیه و کاربردها',
+        'فصل 5 · درس 2: تجزیه، تمرین بیشتر',
+        'فصل 5 · درس 3: نابرابری‌ها و نامعادله‌ها',
+        'فصل 5: 25 تست تیزهوشان + دفتر اشتباهات',
+        'فصل 6 خط و معادله‌های خطی · درس 1: معادلهٔ خط',
+        'فصل 6 · درس 2: شیب خط و عرض از مبدأ',
+        'فصل 6 · درس 3: دستگاه معادله‌های خطی',
+        'فصل 6: 25 تست تیزهوشان + دفتر اشتباهات',
+        'فصل 7 عبارت‌های گویا · درس 1: معرفی و ساده کردن عبارت‌های گویا',
+        'فصل 7 · درس 2: محاسبات عبارت‌های گویا',
+        'فصل 7 · درس 3: تقسیم چندجمله‌ای‌ها',
+        'فصل 7: 25 تست تیزهوشان + دفتر اشتباهات',
+        'فصل 8 حجم و مساحت · درس 1: حجم و مساحت کره',
+        'فصل 8 · درس 2: حجم هرم و مخروط',
+        'فصل 8 · درس 3: سطح و حجم',
+        'فصل 8: 25 تست تیزهوشان + دفتر اشتباهات',
+        'دور دوم فصل 1: 20 تست سطح بالا (کتاب جامع)',
+        'دور دوم فصل 2: 20 تست سطح بالا',
+        'دور دوم فصل 3: 20 تست سطح بالا (بخش 1)',
+        'دور دوم فصل 3: 20 تست سطح بالا (بخش 2)',
+        'دور دوم فصل 4: 20 تست سطح بالا',
+        'دور دوم فصل 5: 20 تست سطح بالا',
+        'دور دوم فصل 6: 20 تست سطح بالا',
+        'دور دوم فصل 7 و 8: 20 تست سطح بالا',
+        'ریاضی کل کتاب: 15 تست در 20 دقیقه، مثل آزمون + تحلیل'
+      ], d: ['ریاضی: 15 تست ترکیبی در 20 دقیقه + تحلیل غلط‌ها', 'ریاضی: سؤال‌های دفتر اشتباهات را دوباره حل کن'] },
+      riaziL: { d: ['ریاضی سبک: 10 تمرین از درس‌های همین هفته'] },
+      hoosh: { d: ['هوش ترکیبی زمان‌دار: 25 سؤال در 25 دقیقه + تحلیل غلط‌ها', 'هوش: تیپ ضعیف این هفته (از دفتر اشتباهات)، درسنامه + 15 سؤال', 'هوش سرعتی: 20 سؤال در 18 دقیقه'] },
+      hooshK: { d: ['دفترچهٔ کامل هوش: 50 سؤال در 50 دقیقه با نمرهٔ منفی؛ نمره را در «آزمون‌ها» ثبت کن'] },
+      olum: { q: [].concat(olumCh(9), olumCh(10), olumCh(11), olumCh(12), olumCh(13), olumCh(14), olumCh(15), [
+        'دور دوم علوم فصل 1 تا 4: 25 تست سطح بالا', 'دور دوم علوم فصل 5 تا 8: 25 تست سطح بالا',
+        'دور دوم علوم فصل 9 تا 12: 25 تست سطح بالا', 'دور دوم علوم فصل 13 تا 15: 25 تست سطح بالا']),
+        d: ['علوم: 20 تست ترکیبی زمان‌دار + دفتر اشتباهات'] },
+      farsi: { q: farsiLessons(10, 17).concat([
+        'تاریخ ادبیات کل کتاب', 'آرایه‌های کل کتاب: جمع‌بندی + 20 تست', 'دستور زبان کل کتاب: جمع‌بندی + 20 تست',
+        'لغت و املای کل کتاب (درس 1 تا 9)', 'لغت و املای کل کتاب (درس 10 تا 17)', 'مفهوم و قرابت معنایی بیت‌ها: 20 تست']),
+        d: ['فارسی: 15 تست ترکیبی زمان‌دار + مرور لغت‌ها'] },
+      arabi: { q: range(6, 10, function (i) { return 'عربی درس ' + i + ': لغت‌ها، ترجمهٔ متن، قواعد و تمرین‌های کتاب'; })
+        .concat(['عربی: جمع‌بندی لغت‌های کل کتاب', 'عربی: قواعد کل کتاب + 15 تست']), d: ['عربی: 20 لغت + 10 تست'] },
+      payam: { q: [payamL(8), QURAN, payamL(9), payamL(10), QURAN, payamL(11), payamL(12), QURAN,
+        'دور دوم پیام‌ها درس 1 تا 6 + 15 تست', 'دور دوم پیام‌ها درس 7 تا 12 + 15 تست', 'قرآن: معنی کلمه‌های کل کتاب'],
+        d: ['پیام‌ها و قرآن: 10 تست ترکیبی'] },
+      motaleat: { q: range(13, 24, function (i) { return 'مطالعات درس ' + i + ': متن، نقشه‌ها و جدول‌ها + 10 تست'; })
+        .concat(['دور دوم مطالعات درس 1 تا 8 + 15 تست', 'دور دوم مطالعات درس 9 تا 16 + 15 تست', 'دور دوم مطالعات درس 17 تا 24 + 15 تست']),
+        d: ['مطالعات: 15 تست ترکیبی'] },
+      mrur: { d: ['مرور هفته: دفتر اشتباهات + خلاصه‌های هفته'] }
+    },
+    p4: {
+      hoosh: { q: ['هوش: 20 سؤال برای گرم شدن بعد از عید'], d: ['هوش: 25 سؤال در 25 دقیقه + تحلیل', 'هوش: تیپ‌های ضعیف از دفتر اشتباهات، 20 سؤال'] },
+      mrur: { q: ['دفتر اشتباهات: ریاضی و هوش'] },
+      riazi: { q: ['ریاضی: مرور فرمول‌ها و نکته‌های کل کتاب', 'جمع‌بندی ریاضی فصل 1 و 2 + 20 تست', 'جمع‌بندی ریاضی فصل 3 و 4 + 20 تست',
+        'جمع‌بندی ریاضی فصل 5 و 6 + 20 تست', 'جمع‌بندی ریاضی فصل 7 و 8 + 20 تست'], d: ['ریاضی: 25 تست زمان‌دار از کل کتاب'] },
+      olum: { q: ['جمع‌بندی علوم فصل 1 تا 3 + 20 تست', 'جمع‌بندی علوم فصل 4 تا 6 + 20 تست', 'جمع‌بندی علوم فصل 7 تا 9 + 20 تست',
+        'جمع‌بندی علوم فصل 10 تا 12 + 20 تست', 'جمع‌بندی علوم فصل 13 تا 15 + 20 تست'] },
+      farsi: { q: ['جمع‌بندی فارسی: لغت و املای درس 1 تا 9', 'جمع‌بندی فارسی: لغت و املای درس 10 تا 17',
+        'فارسی: دستور زبان کل کتاب + 15 تست', 'فارسی: آرایه‌ها و تاریخ ادبیات + 15 تست', 'فارسی: 25 تست زمان‌دار'] },
+      motaleat: { q: ['جمع‌بندی مطالعات درس 1 تا 12 + 15 تست', 'جمع‌بندی مطالعات درس 13 تا 24 + 15 تست'] },
+      payam: { q: ['جمع‌بندی پیام‌ها و قرآن + 15 تست', 'پیام‌ها و قرآن: 20 تست ترکیبی'] },
+      arabi: { q: ['جمع‌بندی عربی: لغت‌ها و قواعد کل کتاب + 15 تست'] },
+      azmoon: { q: ['آزمون کامل 1: سؤال‌های آزمون ورودی 1401 (هر دو دفترچه)'] }
+    },
+    p5: {
+      riazi: { q: range(1, 8, function (i) { return 'دور سوم ریاضی فصل ' + i + ': خلاصهٔ نکته‌ها + 20 تست سطح بالا'; })
+        .concat(['ریاضی: سؤال‌های ریاضی آزمون‌های ورودی سال‌های قبل (2 سال)', 'ریاضی: سؤال‌های ریاضی آزمون‌های ورودی (2 سال دیگر)']),
+        d: ['ریاضی: 15 تست ترکیبی در 20 دقیقه + تحلیل', 'ریاضی: فقط سؤال‌های دفتر اشتباهات'] },
+      riaziL: { d: ['ریاضی سبک: 10 سؤال از فصلی که در آزمون هفته ضعیف‌تر بودی'] },
+      hoosh: { d: ['هوش: 25 سؤال در 25 دقیقه + تحلیل', 'هوش: تیپ‌های ضعیف از دفتر اشتباهات، 20 سؤال', 'هوش سرعتی: 20 سؤال در 18 دقیقه'] },
+      olum: { q: ['دور سوم علوم فصل 1 تا 3 + 25 تست', 'دور سوم علوم فصل 4 تا 6 + 25 تست', 'دور سوم علوم فصل 7 تا 9 + 25 تست',
+        'دور سوم علوم فصل 10 تا 12 + 25 تست', 'دور سوم علوم فصل 13 تا 15 + 25 تست', 'علوم: سؤال‌های علوم آزمون‌های ورودی سال‌های قبل'],
+        d: ['علوم: 20 تست ترکیبی زمان‌دار + دفتر اشتباهات'] },
+      farsi: { q: ['فارسی: لغت و املای درس 1 تا 6', 'فارسی: لغت و املای درس 7 تا 12', 'فارسی: لغت و املای درس 13 تا 17',
+        'فارسی: آرایه‌ها، 25 تست', 'فارسی: دستور زبان، 25 تست', 'فارسی: تاریخ ادبیات و مفهوم بیت‌ها، 20 تست'],
+        d: ['فارسی: 15 تست ترکیبی زمان‌دار + لغت‌های غلط'] },
+      arabi: { q: ['عربی: لغت‌های کل کتاب', 'عربی: قواعد کل کتاب + 15 تست', 'عربی: ترجمه و درک مطلب + 10 تست'], d: ['عربی: 10 تست زمان‌دار'] },
+      motaleat: { q: ['مطالعات درس 1 تا 8 + 15 تست', 'مطالعات درس 9 تا 16 + 15 تست', 'مطالعات درس 17 تا 24 + 15 تست'], d: ['مطالعات: 15 تست ترکیبی'] },
+      payam: { q: ['پیام‌ها درس 1 تا 6 + 15 تست', 'پیام‌ها درس 7 تا 12 + 15 تست', 'قرآن: معنی کلمه‌های کل کتاب + 10 تست'], d: ['پیام‌ها و قرآن: 10 تست زمان‌دار'] },
+      azmoon: { q: [
+        'آزمون کامل 2: سؤال‌های آزمون ورودی 1402',
+        'آزمون کامل 3: یک آزمون شبیه‌ساز (کتاب 31+1 استان، یا آزمون آزمایشی قلم‌چی یا گاج)',
+        'آزمون کامل 4: سؤال‌های آزمون ورودی 1403',
+        'آزمون کامل 5: آزمون شبیه‌ساز',
+        'آزمون کامل 6: سؤال‌های آزمون ورودی 1404',
+        'آزمون کامل 7: آزمون شبیه‌ساز',
+        'آزمون کامل 8: سؤال‌های آزمون ورودی 1405 (جدیدترین)'
+      ], d: ['آزمون کامل: آزمون شبیه‌ساز'] }
+    },
+    p6: {
+      madrese: { d: ['امتحان‌های خرداد: درسِ امتحان بعدی (معدل کتبی خرداد در نمرهٔ نمونه دولتی 30٪ اثر دارد)'] },
+      hoosh: { d: ['هوش نگهداری: 15 سؤال در 15 دقیقه', 'هوش: 25 سؤال در 25 دقیقه'] },
+      riazi: { d: ['ریاضی: فرمول‌ها و دفتر اشتباهات'] },
+      olum: { d: ['علوم: مرور خلاصه‌های خودت'] },
+      mrur: { d: ['دفتر اشتباهات: ریاضی و هوش (سبک)'] }
+    }
+  };
+  var GENERIC = {
+    tamas: ['گزارش هفته برای پشتیبان + نگاه به برنامهٔ هفتهٔ بعد'],
+    tahlil: ['تحلیل آزمون (بعد از ناهار): هر غلط و نزده را دوباره حل کن و نمره را در «آزمون‌ها» ثبت کن'],
+    mrur: ['دفتر اشتباهات'],
+    madrese: ['درس‌های مدرسه'],
+    hoosh: ['هوش: 20 سؤال'],
+    karha: ['کار']
+  };
+
+  /* ---------- one-off days ---------- */
+  var P0 = [
+    [['karha', 20, 'برنامه را با پشتیبان مرور کن و بخش «قرارها» را بخوان'], ['karha', 5, 'یک دفتر جدا به اسم «دفتر اشتباهات» آماده کن'],
+      ['karha', 15, 'فهرست خرید کتاب‌ها را (بخش «منابع»، اولویت 1) با پشتیبان نهایی کنید و سفارش بدهید']],
+    [['karha', 15, 'سؤال‌ها و کلید آزمون ورودی پایه دهم سال‌های 1400 تا 1405 را دانلود کن'], ['riazi', 20, 'فهرست درس‌هایی را که مدرسه تا امروز درس داده بنویس']],
+    [['hoosh', 55, 'آزمون تشخیصی: دفترچهٔ استعداد تحلیلی آزمون ورودی 1400، با ساعت و بدون کمک (حدود یک دقیقه برای هر سؤال). نمرهٔ پایین در شروع طبیعی است'],
+      ['hoosh', 20, 'تصحیح آزمون تشخیصی با کلید و ثبت نمره در «آزمون‌ها»'], ['hoosh', 20, 'سؤال‌های غلط و نزده را دسته‌بندی کن: عددی، تصویری، کلامی، منطقی']],
+    [['tamas', 15, 'تماس با پشتیبان: نتیجهٔ آزمون تشخیصی و شروع برنامه از شنبه']]
+  ];
+  var P4DAYS = [
+    { rest: 'آخرین روز سال؛ استراحت کامل' },
+    { rest: 'نوروز؛ بدون درس' }, { rest: 'نوروز؛ بدون درس' }, { rest: 'نوروز؛ بدون درس' }, { rest: 'نوروز؛ بدون درس' },
+    { s: [['hoosh', 30], ['mrur', 30]], note: 'شروع آرام بعد از عید' },
+    { s: [['hoosh', 30], ['riazi', 30]], note: 'شروع آرام بعد از عید' },
+    { s: [['riazi', 60], ['olum', 50], ['hoosh', 50], ['farsi', 40], ['motaleat', 30]], note: 'دو جلسه صبح، دو جلسه عصر؛ وسطش حداقل دو ساعت استراحت و بیرون رفتن' },
+    { s: [['riazi', 60], ['olum', 50], ['hoosh', 50], ['farsi', 40], ['payam', 30]], note: 'دو جلسه صبح، دو جلسه عصر؛ وسطش حداقل دو ساعت استراحت و بیرون رفتن' },
+    { s: [['riazi', 60], ['olum', 50], ['hoosh', 50], ['farsi', 40], ['arabi', 30]], note: 'دو جلسه صبح، دو جلسه عصر؛ وسطش حداقل دو ساعت استراحت و بیرون رفتن' },
+    { s: [['riazi', 60], ['olum', 50], ['hoosh', 50], ['farsi', 40], ['motaleat', 30]], note: 'دو جلسه صبح، دو جلسه عصر؛ وسطش حداقل دو ساعت استراحت و بیرون رفتن' },
+    { s: [['riazi', 60], ['olum', 50], ['hoosh', 50], ['farsi', 40], ['payam', 30]], note: 'دو جلسه صبح، دو جلسه عصر؛ وسطش حداقل دو ساعت استراحت و بیرون رفتن' },
+    { s: [['azmoon', 125], ['tahlil', 60]], note: 'آزمون را ساعت 8 صبح شروع کن، مثل روز اصلی' },
+    { rest: 'سیزده‌بدر؛ استراحت کامل' }
+  ];
+  var EXTRAS = [
+    { w: 10, wd: 0, id: 'x:ex1-0', s: 'karha', m: 10, t: 'برنامهٔ امتحان‌های نوبت اول را از مدرسه بگیر و روزهای امتحان را علامت بزن' },
+    { w: 13, wd: 0, id: 'x:card-0', s: 'karha', m: 15, t: 'کارنامهٔ نوبت اول را با پشتیبان ببینید؛ شرط ثبت‌نام سمپاد: معدل نوبت اول 19 یا بیشتر' },
+    { w: 25, wd: 0, id: 'x:book-0', s: 'karha', m: 5, t: 'پشتیبان: از این هفته اطلاعیه‌های sanjesh.org را دنبال کن؛ دفترچهٔ ثبت‌نام پارسال 7 اردیبهشت منتشر شد' },
+    { w: 28, wd: 0, id: 'x:book-1', s: 'karha', m: 20, t: 'دفترچهٔ ثبت‌نام را با پشتیبان بخوانید (تاریخ آزمون، شرط معدل، مدرسه‌ها) و تاریخ آزمون را در «تنظیمات» وارد کنید' },
+    { w: 29, wd: 0, id: 'x:reg-0', s: 'karha', m: 30, t: 'ثبت‌نام آزمون در sanjesh.org (پارسال 8 تا 13 اردیبهشت). تا 4 مدرسه به ترتیب اولویت؛ بعداً عوض نمی‌شود' },
+    { w: 30, wd: 0, id: 'x:reg-1', s: 'karha', m: 5, t: 'اگر ثبت‌نام نکرده‌اید، دور دوم را از دست ندهید (پارسال 17 تا 21 اردیبهشت)' },
+    { w: 32, wd: 0, id: 'x:ex2-0', s: 'karha', m: 10, t: 'برنامهٔ امتحان‌های خرداد را بگیر و روزهای امتحان را علامت بزن' }
+  ];
+  var COUNTDOWN = {
+    6: [['hoosh', 50, 'آخرین دفترچهٔ کامل هوش: 50 سؤال در 50 دقیقه با نمرهٔ منفی'], ['riazi', 40, 'ریاضی: فرمول‌ها و نکته‌های دفتر اشتباهات']],
+    5: [['olum', 40, 'علوم: مرور خلاصه‌های خودت'], ['farsi', 30, 'فارسی: لغت‌ها و آرایه‌ها'], ['hoosh', 20, 'هوش: 15 سؤال']],
+    4: [['riazi', 40, 'ریاضی: 15 تست آسان تا متوسط، برای اعتمادبه‌نفس'], ['motaleat', 35, 'مطالعات، پیام‌ها و عربی: مرور خلاصه‌ها'], ['karha', 10, 'کارت ورود به جلسه را از sanjesh.org بگیر و چاپ کن']],
+    3: [['mrur', 60, 'دفتر اشتباهات: مرور سریع همهٔ درس‌ها'], ['hoosh', 20, 'هوش: 10 سؤال']],
+    2: [['mrur', 40, 'مرور خیلی سبک خلاصه‌ها'], ['karha', 10, 'وسایل آزمون: کارت ورود به جلسه، کارت شناسایی، مداد نرم، پاک‌کن و تراش. گوشی و ماشین‌حساب ممنوع است']],
+    1: [['karha', 20, 'استراحت. فقط 20 دقیقه نگاه به خلاصه‌ها؛ شب زود بخواب، آزمون صبح است']],
+    0: [['karha', 0, 'روز آزمون: صبحانهٔ سبک، زودتر از ساعت شروع برس. سؤال سخت را رد کن و آخر سر برگرد']]
+  };
+  var ROLE_NOTE = {
+    L: 'روز کلاس زبان؛ برنامهٔ امروز سبک‌تر است. یک جلسه را قبل از کلاس بخوان و بقیه را بعد از آن',
+    T: 'جبرانی: اگر کاری از این هفته مانده، امروز انجامش بده؛ اگر نه، بقیهٔ روز آزاد است',
+    F: 'جمعه: بعد از این کارها، روز آزاد است'
+  };
+
+  /* ---------- builder ---------- */
+  /* Normal days get N1..N3 in order. If Thursday is a class day, the next free
+     weekday takes Thursday's long template (T) so no subject loses its weekly slots;
+     any further free weekday gets N4. */
+  function rolesForWeek(eng) {
+    var roles = [], n = 0, l = 0, thuIsClass = eng.indexOf(5) >= 0, tGiven = false;
+    for (var wd = 0; wd < 7; wd++) {
+      if (wd === 6) roles.push('F');
+      else if (eng.indexOf(wd) >= 0) roles.push('L' + (++l));
+      else if (wd === 5) roles.push('T');
+      else if (n < 3) roles.push('N' + (++n));
+      else if (thuIsClass && !tGiven) { roles.push('T'); tGiven = true; }
+      else roles.push('N4');
+    }
+    return roles;
+  }
+  function pick(tpl, role, week) {
+    if (role === 'F' && tpl.Fe) return week % 2 === 0 ? tpl.Fe : tpl.Fo;
+    if (tpl[role]) return tpl[role];
+    var k = role.charAt(0), i = parseInt(role.slice(1), 10) || 1;
+    if (k === 'N') return tpl['N' + (((i - 1) % 4) + 1)] || tpl.N || tpl.D;
+    if (k === 'L') return tpl['L' + (((i - 1) % 2) + 1)] || tpl.L || tpl.D;
+    if (k === 'T') return tpl.T || tpl.D;
+    return tpl.F || tpl.D;
+  }
+
+  function build(settings) {
+    var eng = ((settings && settings.eng) || [0, 4]).filter(function (x, i, a) { return x >= 0 && x <= 5 && a.indexOf(x) === i; }).slice(0, 2);
+    var exam = (settings && settings.exam) || DEFAULT_EXAM;
+    var end = Math.max(W1 + WEEKS * 7 - 1, exam);
+    var roles = rolesForWeek(eng);
+    var counters = {}, days = [], byId = {};
+    for (var d = START; d <= end; d++) {
+      var wd = weekday(d);
+      var week = d < W1 ? 0 : Math.floor((d - W1) / 7) + 1;
+      var ph = phaseOfWeek(week);
+      var day = { jdn: d, wd: wd, week: week, phase: ph.key, role: week === 0 ? null : roles[wd], tasks: [], notes: [], rest: null };
+      days.push(day);
+      if (d > exam) { day.after = true; continue; }
+      var off = exam - d;
+      if (off <= 6) {
+        day.countdown = off;
+        COUNTDOWN[off].forEach(function (x, i) { day.tasks.push({ id: 'cd:' + off + '-' + i, s: x[0], m: x[1], t: x[2] }); });
+        continue;
+      }
+      var slots = [], fixed = null;
+      if (ph.key === 'p0') {
+        fixed = P0[d - START] || [];
+        fixed.forEach(function (x, i) { day.tasks.push({ id: 'p0:d' + (d - START) + '-' + i, s: x[0], m: x[1], t: x[2] }); });
+        continue;
+      } else if (ph.key === 'p4') {
+        var spec = P4DAYS[d - weekStart(23)] || { rest: 'استراحت' };
+        if (spec.rest) { day.rest = spec.rest; continue; }
+        slots = spec.s; if (spec.note) day.notes.push(spec.note);
+        day.role = null;
+      } else {
+        var tplKey = ph.key;
+        if (ph.key === 'p3' && week === 13) tplKey = 'p3a';
+        if (ph.key === 'p6' && week > 34) tplKey = 'p6m';
+        slots = pick(TPL[tplKey], day.role, week);
+        var rk = day.role.charAt(0);
+        if (rk === 'L') day.notes.push(ROLE_NOTE.L);
+        if ((ph.key === 'p1' || ph.key === 'p3' || ph.key === 'p5') && rk === 'T' && week !== 13) day.notes.push(ROLE_NOTE.T);
+        if (rk === 'F' && ph.key !== 'p5') day.notes.push(ROLE_NOTE.F);
+        if (rk === 'F' && ph.key === 'p5') day.notes.push('آزمون را ساعت 8 صبح شروع کن: اول دفترچهٔ تحصیلی (75 دقیقه)، بعد تحلیلی (50 دقیقه)');
+        if (ph.key === 'p2' && rk !== 'F') day.notes.push('اگر امروز امتحان داشتی، بعدش یک ساعت استراحت کن و بعد سراغ امتحان بعدی برو');
+        if (week === 13 && rk !== 'F') day.notes.push('هفتهٔ بازگشت آرام بعد از امتحان‌ها');
+      }
+      EXTRAS.forEach(function (x) { if (x.w === week && x.wd === wd) day.tasks.push({ id: x.id, s: x.s, m: x.m, t: x.t }); });
+      slots.forEach(function (sl) {
+        var s = sl[0], key = ph.key + ':' + s;
+        var n = counters[key] = (counters[key] === undefined ? 0 : counters[key] + 1);
+        var src = (Q[ph.key] && Q[ph.key][s]) || {};
+        var q = src.q || [], dd = src.d || GENERIC[s] || ['جلسهٔ ' + SUBJ[s].l];
+        var t = n < q.length ? q[n] : dd[(n - q.length) % dd.length];
+        day.tasks.push({ id: key + '-' + n, s: s, m: sl[1], t: t, q: n < q.length });
+      });
+    }
+    days.forEach(function (dy) { dy.tasks.forEach(function (t) { byId[t.id] = dy.jdn; }); });
+    return { days: days, start: START, end: end, w1: W1, exam: exam, eng: eng, byId: byId, counters: counters };
+  }
+
+  return {
+    g2d: g2d, d2g: d2g, j2d: j2d, d2j: d2j, weekday: weekday, weekStart: weekStart,
+    MONTHS: MONTHS, WEEKDAYS: WEEKDAYS, SUBJ: SUBJ, PHASES: PHASES, phaseOfWeek: phaseOfWeek,
+    START: START, W1: W1, WEEKS: WEEKS, DEFAULT_EXAM: DEFAULT_EXAM, Q: Q, TPL: TPL, build: build
+  };
+})();
+
+</script>
+<script>
+/* ===== app.js : UI, storage and sync ===== */
+(function () {
+  'use strict';
+  var P = TZPLAN;
+  var FA = '۰۱۲۳۴۵۶۷۸۹';
+  function fa(x) { return String(x).replace(/[0-9]/g, function (d) { return FA[d]; }); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function T(s) { return esc(fa(s)); }
+  function toEn(s) { return String(s).replace(/[۰-۹]/g, function (d) { return FA.indexOf(d); }).replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }); }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  var VIEW = $('#view');
+  var VIEWS = ['today', 'week', 'road', 'mocks', 'books', 'rules'];
+
+  /* ---------- per-device storage ---------- */
+  var LS = {
+    get: function (k, d) { try { var v = localStorage.getItem('tz6.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem('tz6.' + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
+  };
+
+  /* ---------- dates ---------- */
+  var EXAM_MIN = P.j2d(1406, 2, 15), EXAM_MAX = P.j2d(1406, 4, 31);
+  function tehranToday() {
+    try {
+      var parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      var g = {}; parts.forEach(function (p) { g[p.type] = parseInt(p.value, 10); });
+      if (g.year && g.month && g.day) return P.g2d(g.year, g.month, g.day);
+    } catch (e) { /* fall through */ }
+    var d = new Date(); return P.g2d(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  }
+  function dLabel(jdn, withYear) { var j = P.d2j(jdn); return j.jd + ' ' + P.MONTHS[j.jm - 1] + (withYear ? ' ' + j.jy : ''); }
+  function wdName(jdn) { return P.WEEKDAYS[P.weekday(jdn)]; }
+  function jKey(jdn) { var j = P.d2j(jdn); return j.jy + '-' + (j.jm < 10 ? '0' : '') + j.jm + '-' + (j.jd < 10 ? '0' : '') + j.jd; }
+  function parseJKey(s) {
+    var m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(toEn(s || ''));
+    if (!m) return null;
+    var y = +m[1], mo = +m[2], d = +m[3];
+    if (y < 1400 || y > 1410 || mo < 1 || mo > 12 || d < 1 || d > (mo <= 6 ? 31 : 30)) return null;
+    return P.j2d(y, mo, d);
+  }
+  function mins(m) { if (!m) return ''; var h = Math.floor(m / 60), r = m % 60; return h ? (r ? h + ' ساعت و ' + r + ' دقیقه' : h + ' ساعت') : m + ' دقیقه'; }
+  function pct(d, n) { return n ? Math.round(d / n * 100) : 0; }
+
+  /* ---------- state ---------- */
+  function normSettings(s) {
+    var out = { eng: [0, 4], examJ: '1406-03-28', examSet: false };
+    if (s && Array.isArray(s.eng)) out.eng = s.eng.map(Number).filter(function (x, i, a) { return x === Math.floor(x) && x >= 0 && x <= 5 && a.indexOf(x) === i; }).slice(0, 2);
+    if (s && typeof s.examJ === 'string') { var j = parseJKey(s.examJ); if (j && j >= EXAM_MIN && j <= EXAM_MAX) { out.examJ = jKey(j); out.examSet = !!s.examSet; } }
+    return out;
+  }
+  var S = {
+    today: tehranToday(),
+    settings: normSettings(null),
+    status: 'init',
+    view: 'today', cursor: null, week: null, plan: null, dayMap: null, lastFocus: null
+  };
+  function rebuild() {
+    S.plan = P.build({ eng: S.settings.eng, exam: parseJKey(S.settings.examJ) });
+    S.dayMap = new Map();
+    S.plan.days.forEach(function (d) { S.dayMap.set(d.jdn, d); });
+  }
+  function isDone(id) { var x = DOC.done[id]; return !!(x && x[0]); }
+  function weekOf(jdn) { return jdn < P.W1 ? 0 : Math.floor((jdn - P.W1) / 7) + 1; }
+  function lastWeek() { return weekOf(S.plan.end); }
+  function weekCells(w) {
+    var s = w === 0 ? P.W1 - 7 : P.weekStart(w), out = [];
+    for (var j = s; j < s + 7; j++) out.push({ jdn: j, day: S.dayMap.get(j) || null });
+    return out;
+  }
+  function dayStats(day) {
+    var n = 0, d = 0;
+    if (day) day.tasks.forEach(function (t) { n++; if (isDone(t.id)) d++; });
+    return { n: n, d: d };
+  }
+  function statKey(s) { return (P.SUBJ[s] && P.SUBJ[s].st) || s; }
+  function clampDay(j) { return Math.max(S.plan.start, Math.min(S.plan.end, j)); }
+  function streak() {
+    var j = Math.min(S.today, S.plan.end), count = 0, td = S.dayMap.get(j);
+    if (td) { var st = dayStats(td); if (st.n && st.d < st.n) j--; }
+    for (; j >= S.plan.start; j--) {
+      var dy = S.dayMap.get(j); if (!dy) break;
+      var s2 = dayStats(dy);
+      if (!s2.n) continue;
+      if (s2.d === s2.n) count++; else break;
+    }
+    return count;
+  }
+
+  /* ---------- copy ---------- */
+  var LABEL = { hoosh: 'هوش', riazi: 'ریاضی', olum: 'علوم', farsi: 'فارسی', motaleat: 'مطالعات', payam: 'پیام‌ها', arabi: 'عربی', azmoon: 'آزمون', mrur: 'مرور', tahlil: 'تحلیل', madrese: 'مدرسه', tamas: 'پشتیبان', karha: 'کارها' };
+  var ORDER = ['hoosh', 'riazi', 'olum', 'farsi', 'motaleat', 'payam', 'arabi', 'azmoon', 'tahlil', 'mrur', 'madrese', 'tamas', 'karha'];
+  var TIPS = [
+    'اول کارهای امروز، بعد گوشی.',
+    'هوش را هر روز کمی بخوان؛ کم ولی هر روز، از زیاد ولی گاهی بهتر است.',
+    'برای ریاضی اول مثال‌های حل‌شدهٔ کتاب درسی، بعد تست.',
+    'سؤالی که غلط زدی طلاست؛ در دفتر اشتباهات بنویسش.',
+    'نمرهٔ منفی: اگر هیچ گزینه‌ای را نمی‌توانی رد کنی، نزن. اگر یکی را رد کردی، زدن به‌صرفه است.',
+    'لغت‌های فارسی را در یک جمله بنویس، نه تنها.',
+    'خواب کافی یعنی هوش بهتر سر جلسه.',
+    'هر ۵۰ دقیقه، ۱۰ دقیقه بلند شو و راه برو.',
+    'سؤال سخت را علامت بزن و رد شو؛ آخر سر برگرد.',
+    '۷۵ سؤال تحصیلی فقط از کتاب‌های درسی نهم است؛ متن کتاب منبع اول است.',
+    'اگر کاری جا ماند، پنجشنبه جبرانش کن؛ روی هم تلنبار نکن.',
+    'نصف نمرهٔ سمپاد مال استعداد تحلیلی است؛ هوش را جدی بگیر.',
+    'زمانِ هر جلسه سقف است، نه کف؛ اگر زودتر تمام شد، تیک بزن و برو.',
+    'به جای مقایسه با دیگران، نمرهٔ این هفته را با هفتهٔ قبلِ خودت مقایسه کن.'
+  ];
+  var METHOD = {
+    hoosh: ['hoosh', 'هوش', 'اول راه‌حل‌ها را بفهم، بعد سرعت. سؤالی که بیش از ۲ دقیقه طول کشید علامت بزن و بعد با پاسخ تشریحی مقایسه کن. ایدهٔ هر سؤال غلط را در دفتر اشتباهات بنویس.'],
+    riazi: ['riazi', 'ریاضی', 'درس جدید: اول مثال‌های حل‌شدهٔ کتاب درسی، بعد درسنامهٔ کتاب کمک‌درسی، بعد کار در کلاس و تمرین‌ها. تست: با ساعت، بعد غلط‌ها در دفتر اشتباهات.'],
+    olum: ['olum', 'علوم', 'متن کتاب درسی را خط‌به‌خط بخوان و زیر نکته‌ها خط بکش؛ یک خلاصهٔ یک‌صفحه‌ای بنویس؛ بعد تست.'],
+    farsi: ['farsi', 'فارسی', 'معنی بیت‌ها را بلند بگو، هر لغت تازه را در یک جمله بنویس، بعد دستور و آرایه، و در آخر تست.'],
+    motaleat: ['motaleat', 'مطالعات', 'متن را همراه نقشه‌ها و جدول‌های درس بخوان؛ نام‌ها و تاریخ‌ها را در یک جدول کوچک بنویس.'],
+    payam: ['payam', 'پیام‌ها و قرآن', 'پیام اصلی و آیه‌های هر درس را خلاصه کن؛ در قرآن، معنی کلمه‌ها مهم‌ترین بخش است.'],
+    arabi: ['arabi', 'عربی', 'لغت‌ها با کارت (عربی به فارسی)، بعد ترجمهٔ متن، بعد قواعد و تمرین.'],
+    azmoon: ['hoosh', 'آزمون کامل', 'مثل روز اصلی: ساعت ۸ صبح، اول دفترچهٔ تحصیلی ۷۵ دقیقه، بعد تحلیلی ۵۰ دقیقه، بدون گوشی. نمره را با ۳ × درست منهای غلط حساب کن. اگر در سؤال‌های سال‌های قدیمی‌تر سؤالی از کتاب هشتم بود، نادیده‌اش بگیر.'],
+    mrur: ['misc', 'دفتر اشتباهات', 'برای هر غلط: صورت سؤال، راه درست و یک جمله که چرا غلط شد. سؤال‌ها را بدون نگاه به جواب دوباره حل کن.']
+  };
+  var METHOD_KEY = { hoosh: 'hoosh', hooshK: 'hoosh', riazi: 'riazi', riaziL: 'riazi', olum: 'olum', farsi: 'farsi', motaleat: 'motaleat', payam: 'payam', arabi: 'arabi', azmoon: 'azmoon', tahlil: 'mrur', mrur: 'mrur' };
+
+  /* ---------- small builders ---------- */
+  function meter(p) { return '<span class="meter" aria-hidden="true"><i style="width:' + p + '%"></i></span>'; }
+  function navBtn(act, label, disabled) { return '<button type="button" class="btn sm" data-act="' + act + '"' + (disabled ? ' disabled' : '') + '>' + label + '</button>'; }
+  function rowHtml(t, i, compact) {
+    var done = isDone(t.id), sj = P.SUBJ[t.s] || { l: '', c: 'misc' };
+    var locked = false;
+    return '<button type="button" class="row' + (compact ? ' compact' : '') + '" role="checkbox" aria-checked="' + done + '" data-id="' + esc(t.id) + '"' +
+      (locked ? ' aria-disabled="true" title="پشتیبان ثبت کرده"' : '') + '>' +
+      '<span class="bub" aria-hidden="true"><i>' + fa(i + 1) + '</i></span>' +
+      '<span class="tx"><span class="meta"><b class="c-' + sj.c + '">' + T(sj.l) + '</b>' + (t.m ? '<span>' + T(t.m + ' دقیقه') + '</span>' : '') + '</span>' +
+      '<span class="tt">' + T(t.t) + '</span></span></button>';
+  }
+  function phaseOf(key) { for (var i = 0; i < P.PHASES.length; i++) if (P.PHASES[i].key === key) return P.PHASES[i]; return P.PHASES[0]; }
+  function phaseSpan(ph) {
+    var a = ph.w0 === 0 ? P.START : P.weekStart(ph.w0);
+    var b = ph.w1 > 900 ? S.plan.exam : Math.min(S.plan.end, P.weekStart(ph.w1) + 6);
+    return { a: a, b: b };
+  }
+
+  /* ---------- header ---------- */
+  function renderHeader() {
+    var left = S.plan.exam - S.today, box = $('#count');
+    if (left < 0) box.innerHTML = '<div><b>آزمون برگزار شد</b><small>نتیجه‌ها معمولاً مرداد اعلام می‌شود</small></div>';
+    else {
+      var digits = fa(left).split('').map(function (c) { return '<span>' + c + '</span>'; }).join('');
+      box.innerHTML = '<div class="digits" aria-hidden="true">' + digits + '</div><div><b>' + (left === 0 ? 'امروز روز آزمون است' : 'روز تا آزمون') + '</b><small>' +
+        T((S.settings.examSet ? 'تاریخ آزمون: ' : 'تاریخ تقریبی: ') + dLabel(S.plan.exam, true)) + '</small></div>';
+    }
+    box.setAttribute('aria-label', left >= 0 ? fa(left) + ' روز تا آزمون' : 'آزمون برگزار شد');
+    var m = $('#mode'), map = {
+      init: ['', 'در حال اتصال…'],
+      saving: ['', 'در حال ذخیره…'],
+      ok: ['ok', 'ذخیره‌شده در گیت‌هاب'],
+      locked: ['warn', 'قفل است؛ تیک‌ها فعلاً فقط روی همین دستگاه می‌مانند'],
+      offline: ['warn', 'ذخیره نشد؛ روی همین دستگاه نگه داشته شد و دوباره تلاش می‌کنم'],
+      auth: ['warn', 'کلید دسترسی کار نمی‌کند؛ به پشتیبان خبر بده'],
+      nocfg: ['warn', 'هنوز به گیت‌هاب وصل نشده؛ تیک‌ها روی همین دستگاه می‌مانند']
+    }[S.status] || ['', ''];
+    m.className = 'pill ' + map[0]; m.textContent = map[1];
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) { b.setAttribute('aria-selected', String(b.dataset.view === S.view)); });
+  }
+
+  /* ---------- today ---------- */
+  function renderToday() {
+    var j = clampDay(S.cursor == null ? S.today : S.cursor);
+    var day = S.dayMap.get(j), ph = phaseOf(day.phase), st = dayStats(day), isToday = j === S.today, w = day.week;
+    var h = '<section class="daysheet" aria-label="کارهای روز">';
+    h += '<div class="dayhead"><div><p class="eyebrow">' + T((isToday ? 'امروز · ' : '') + (w === 0 ? 'هفتهٔ صفر' : 'هفتهٔ ' + w + ' از ' + P.WEEKS) + ' · ' + ph.t) + '</p>' +
+      '<h2>' + T(wdName(j) + ' ' + dLabel(j)) + '</h2></div><div class="dnav">' +
+      navBtn('prev-day', 'روز قبل', j <= S.plan.start) + (isToday ? '' : navBtn('today', 'امروز', false)) + navBtn('next-day', 'روز بعد', j >= S.plan.end) + '</div></div>';
+    if (day.after) h += '<p class="empty">آزمون تمام شد. نتیجه‌ها معمولاً مرداد اعلام می‌شود.</p>';
+    else if (day.rest) h += '<p class="empty">' + T(day.rest) + '</p>';
+    else if (!day.tasks.length) h += '<p class="empty">امروز کاری در برنامه نیست.</p>';
+    else {
+      var total = day.tasks.reduce(function (a, t) { return a + t.m; }, 0);
+      h += '<div class="dprog"><span>' + T(st.d + ' از ' + st.n + ' کار') + '</span>' + meter(pct(st.d, st.n)) + '<span>' + T(total ? 'حدود ' + mins(total) : '') + '</span></div>';
+      h += '<div class="rows">' + day.tasks.map(function (t, i) { return rowHtml(t, i); }).join('') + '</div>';
+    }
+    if (day.notes.length) h += '<ul class="notes">' + day.notes.map(function (n) { return '<li>' + T(n) + '</li>'; }).join('') + '</ul>';
+    h += '</section>';
+    h += stripHtml(w, j);
+    var sk = streak(), sp = phaseSpan(ph);
+    h += '<div class="grid2"><section class="card"><p class="eyebrow">' + T(ph.n + ' · ' + dLabel(sp.a) + ' تا ' + dLabel(sp.b)) + '</p><h3>' + T(ph.t) + '</h3><p class="muted">' + T(ph.goal) + '</p></section>';
+    h += '<section class="card"><p class="eyebrow">نکتهٔ امروز</p><p class="tip">' + T(TIPS[j % TIPS.length]) + '</p>' +
+      (sk > 0 ? '<p class="streak">' + T(sk + ' روز پشت سر هم، همهٔ کارها انجام شده') + '</p>' : '') + '</section></div>';
+    var seen = {}, subs = [];
+    day.tasks.forEach(function (t) { var k = METHOD_KEY[t.s]; if (k && !seen[k]) { seen[k] = 1; subs.push(k); } });
+    if (subs.length) {
+      h += '<details class="card method" data-k="method"><summary>روش مطالعهٔ درس‌های این روز</summary><dl>' + subs.map(function (k) {
+        var m = METHOD[k]; return '<dt class="c-' + m[0] + '">' + T(m[1]) + '</dt><dd>' + T(m[2]) + '</dd>';
+      }).join('') + '</dl></details>';
+    }
+    VIEW.innerHTML = h;
+  }
+  function stripHtml(w, sel) {
+    return '<nav class="strip" aria-label="روزهای این هفته">' + weekCells(w).map(function (c) {
+      var lab = P.WEEKDAYS[P.weekday(c.jdn)];
+      if (!c.day) return '<button type="button" class="sd" disabled aria-hidden="true"></button>';
+      var st = dayStats(c.day), p = st.n ? pct(st.d, st.n) : 0;
+      return '<button type="button" class="sd' + (c.jdn === sel ? ' sel' : '') + '"' + (c.jdn === S.today ? ' aria-current="date"' : '') + ' data-go="' + c.jdn + '" aria-label="' +
+        T(lab + ' ' + dLabel(c.jdn) + (st.n ? '، ' + st.d + ' از ' + st.n : '، استراحت')) + '"><span>' + T(lab.charAt(0)) + '</span><span class="fill' + (st.n ? '' : ' none') +
+        '" style="--p:' + p + '%"></span><span>' + T(P.d2j(c.jdn).jd) + '</span></button>';
+    }).join('') + '</nav>';
+  }
+
+  /* ---------- week ---------- */
+  function renderWeek() {
+    var maxW = lastWeek();
+    var w = S.week == null ? weekOf(clampDay(S.today)) : S.week;
+    w = Math.max(0, Math.min(maxW, w)); S.week = w;
+    var cells = weekCells(w).filter(function (c) { return c.day; });
+    var n = 0, d = 0, subj = {};
+    cells.forEach(function (c) {
+      c.day.tasks.forEach(function (t) {
+        n++; var ok = isDone(t.id); if (ok) d++;
+        var k = statKey(t.s); subj[k] = subj[k] || { n: 0, d: 0 }; subj[k].n++; if (ok) subj[k].d++;
+      });
+    });
+    var ph = P.phaseOfWeek(w), first = cells[0].jdn, last = cells[cells.length - 1].jdn;
+    var h = '<section class="weekhead"><div><p class="eyebrow">' + T(ph.key === 'p0' ? ph.t : ph.n + ' · ' + ph.t) + '</p><h2>' + T(w === 0 ? 'هفتهٔ صفر' : 'هفتهٔ ' + w + ' از ' + P.WEEKS) + '</h2>' +
+      '<p class="muted">' + T(dLabel(first) + ' تا ' + dLabel(last)) + '</p></div>' +
+      '<div class="bigpct"><b>' + T(pct(d, n)) + '٪</b><span>' + T(d + ' از ' + n + ' کار انجام شده') + '</span></div>' +
+      '<div class="dnav">' + navBtn('prev-week', 'هفتهٔ قبل', w <= 0) + (w === weekOf(S.today) ? '' : navBtn('this-week', 'این هفته', false)) + navBtn('next-week', 'هفتهٔ بعد', w >= maxW) + '</div></section>';
+    h += '<div class="subjs">' + ORDER.filter(function (k) { return subj[k]; }).map(function (k) {
+      var c = (P.SUBJ[k] && P.SUBJ[k].c) || 'misc';
+      return '<span class="sbar"><b class="c-' + c + '">' + T(LABEL[k]) + '</b><span>' + T(subj[k].d + '/' + subj[k].n) + '</span>' + meter(pct(subj[k].d, subj[k].n)) + '</span>';
+    }).join('') + '</div>';
+    h += '<div class="wgrid">' + cells.map(function (c) {
+      var dy = c.day, st = dayStats(dy), body;
+      if (dy.after) body = '<p class="rest">—</p>';
+      else if (dy.rest) body = '<p class="rest">' + T(dy.rest) + '</p>';
+      else body = '<div class="rows">' + dy.tasks.map(function (t, i) { return rowHtml(t, i, true); }).join('') + '</div>';
+      var cls = dy.role && dy.role.charAt(0) === 'L' && !dy.rest && dy.phase !== 'p4' ? '<p class="tag">کلاس زبان</p>' : '';
+      return '<section class="wday' + (dy.jdn === S.today ? ' today' : '') + '"><h3><span>' + T(wdName(dy.jdn) + ' ' + dLabel(dy.jdn)) + '</span><span class="muted">' +
+        (st.n ? T(st.d + '/' + st.n) : '') + '</span></h3>' + body + cls + '</section>';
+    }).join('') + '</div>';
+    h += reportHtml();
+    VIEW.innerHTML = h;
+  }
+
+  /* ---------- data document (merged by timestamp) ---------- */
+  function now() { return Date.now(); }
+  function b64e(str) { var bytes = new TextEncoder().encode(str), bin = ''; for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]); return btoa(bin); }
+  function b64d(b64) { var bin = atob(b64), bytes = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i); return new TextDecoder().decode(bytes); }
+  function emptyDoc() { return { v: 1, done: {}, mocks: {}, settings: null, updated: 0 }; }
+  function mergeDocs(a, b) {
+    var out = emptyDoc();
+    [a, b].forEach(function (d) {
+      if (!d || typeof d !== 'object') return;
+      var dn = d.done || {}, mk = d.mocks || {};
+      Object.keys(dn).forEach(function (k) {
+        var x = dn[k]; if (!Array.isArray(x)) return;
+        var y = out.done[k]; if (!y || (+x[1] || 0) > y[1]) out.done[k] = [x[0] ? 1 : 0, +x[1] || 0];
+      });
+      Object.keys(mk).forEach(function (k) {
+        var x = mk[k]; if (!x || typeof x !== 'object') return;
+        var y = out.mocks[k]; if (!y || (+x.t || 0) > (+y.t || 0)) out.mocks[k] = x;
+      });
+      if (d.settings && typeof d.settings === 'object' && (!out.settings || (+d.settings.t || 0) > (+out.settings.t || 0))) out.settings = d.settings;
+      if ((+d.updated || 0) > out.updated) out.updated = +d.updated;
+    });
+    return out;
+  }
+  function canon(v) {
+    if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+    if (v && typeof v === 'object') return '{' + Object.keys(v).sort().map(function (k) { return JSON.stringify(k) + ':' + canon(v[k]); }).join(',') + '}';
+    return JSON.stringify(v);
+  }
+  var DOC = mergeDocs(LS.get('doc', null), null);
+  var REV = 0;
+  function saveLocal() { LS.set('doc', DOC); }
+  function touch() { REV++; DOC.updated = now(); saveLocal(); schedule(1500); }
+  function setDone(id, val) { DOC.done[id] = [val ? 1 : 0, now()]; touch(); }
+  function toggle(id) { setDone(id, !isDone(id)); render(); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  /* ---------- GitHub sync ---------- */
+  var GH = { cfg: null, token: null, timer: null, busy: false, again: false };
+  function setStatus(st) { if (S.status !== st) { var lk = S.status === 'locked' || st === 'locked'; S.status = st; if (lk) render(); else renderHeader(); } }
+  function ghUrl() { return 'https://api.github.com/repos/' + GH.cfg.owner + '/' + GH.cfg.repo + '/contents/' + GH.cfg.path; }
+  function ghHeaders() { return { 'Authorization': 'Bearer ' + GH.token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }; }
+  async function ghGet() {
+    var r = await fetch(ghUrl(), { headers: ghHeaders(), cache: 'no-store' });
+    if (r.status === 404) return { sha: null, doc: null };
+    if (r.status === 401 || r.status === 403) throw { auth: true };
+    if (!r.ok) throw { status: r.status };
+    var j = await r.json();
+    return { sha: j.sha, doc: JSON.parse(b64d(String(j.content || '').replace(/\s/g, ''))) };
+  }
+  async function ghPut(doc, sha) {
+    var body = { message: 'به‌روزرسانی برنامه ' + new Date().toISOString(), content: b64e(JSON.stringify(doc)) };
+    if (sha) body.sha = sha;
+    var r = await fetch(ghUrl(), { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
+    if (r.status === 409 || r.status === 422) return { conflict: true };
+    if (r.status === 401 || r.status === 403) throw { auth: true };
+    if (!r.ok) throw { status: r.status };
+    return { ok: true };
+  }
+  function schedule(ms) {
+    if (!GH.token) return;
+    clearTimeout(GH.timer); GH.timer = setTimeout(sync, ms);
+  }
+  async function sync() {
+    if (!GH.token || !GH.cfg) return;
+    if (GH.busy) { GH.again = true; return; }
+    GH.busy = true;
+    var rev0 = REV, failed = false, before = canon(DOC);
+    if (S.status !== 'ok') setStatus('saving');
+    try {
+      for (var attempt = 0; attempt < 4; attempt++) {
+        var remote = await ghGet();
+        var merged = mergeDocs(remote.doc, DOC);
+        var same = remote.doc && canon(merged) === canon(mergeDocs(remote.doc, null));
+        if (same) { DOC = mergeDocs(merged, DOC); break; }
+        setStatus('saving');
+        var res = await ghPut(merged, remote.sha);
+        if (res.conflict) { await sleep(400 + Math.random() * 600); continue; }
+        DOC = mergeDocs(merged, DOC);
+        break;
+      }
+      saveLocal();
+      setStatus('ok');
+      if (canon(DOC) !== before) { if (DOC.settings) applySettings(DOC.settings); render(); }
+    } catch (e) {
+      failed = true;
+      setStatus(e && e.auth ? 'auth' : 'offline');
+    } finally {
+      GH.busy = false;
+      if (DOC.settings) applySettings(DOC.settings);
+      render();
+      if (GH.again || REV !== rev0) { GH.again = false; schedule(800); }
+      else if (failed && S.status === 'offline') schedule(30000);
+    }
+  }
+  async function deriveKey(pw, salt, iter) {
+    var base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  }
+  function unb64(s) { var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+  async function unlock(pw) {
+    var c = GH.cfg;
+    var key = await deriveKey(pw, unb64(c.salt), c.iter);
+    var plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(c.iv) }, key, unb64(c.ct));
+    GH.token = new TextDecoder().decode(plain);
+    LS.set('tok', GH.token);
+    await sync();
+  }
+  async function startSync() {
+    try {
+      var r = await fetch('config.json', { cache: 'no-store' });
+      if (!r.ok) throw 0;
+      GH.cfg = await r.json();
+      if (!GH.cfg || !GH.cfg.ct) throw 0;
+    } catch (e) { GH.cfg = null; setStatus('nocfg'); render(); return; }
+    var tok = LS.get('tok', null);
+    if (tok) { GH.token = tok; sync(); } else { setStatus('locked'); render(); }
+  }
+  function lockHtml() {
+    if (S.status !== 'locked') return '';
+    return '<section class="card lock"><h3>ورود</h3><p class="muted">رمز برنامه را وارد کن تا تیک‌ها و نمره‌ها در گیت‌هاب ذخیره شوند. فقط یک بار روی هر دستگاه لازم است.</p>' +
+      '<form id="lockform" class="frow" novalidate><label>رمز<input id="lock-pw" class="inp" type="password" autocomplete="current-password" style="width:min(100%,240px)"></label>' +
+      '<button type="submit" class="btn primary">ورود</button></form><p class="err" id="lock-err" role="alert"></p></section>';
+  }
+  function reportHtml() { return ''; }
+
+  /* ---------- mocks ---------- */
+  var SECS = ['hoosh', 'riazi', 'olum', 'farsi', 'motaleat', 'payam', 'arabi'];
+  var SEC = {
+    hoosh: { l: 'استعداد تحلیلی', n: 50, w: 1 }, riazi: { l: 'ریاضی', n: 15, w: 3 }, olum: { l: 'علوم تجربی', n: 15, w: 3 }, farsi: { l: 'فارسی', n: 15, w: 2 },
+    motaleat: { l: 'مطالعات اجتماعی', n: 10, w: 2 }, payam: { l: 'قرآن و پیام‌ها', n: 10, w: 2 }, arabi: { l: 'عربی', n: 10, w: 1 }
+  };
+  var ACAD = ['riazi', 'olum', 'farsi', 'motaleat', 'payam', 'arabi'];
+  function cleanMock(x) {
+    if (!x || typeof x !== 'object') return null;
+    var j = parseJKey(x.date); if (!j) return null;
+    var o = { date: jKey(j), title: String(x.title || 'آزمون').slice(0, 60) }, any = false;
+    SECS.forEach(function (s) {
+      var v = x[s]; if (!v || typeof v !== 'object') return;
+      var c = Math.floor(+v.c), w = Math.floor(+v.w);
+      if (!(c >= 0) || !(w >= 0) || c + w > SEC[s].n) return;
+      o[s] = { c: c, w: w }; any = true;
+    });
+    return any ? o : null;
+  }
+  function allMocks() {
+    return Object.keys(DOC.mocks).map(function (k) { var m = DOC.mocks[k]; if (!m || m.del) return null; var c = cleanMock(m); if (c) c.id = k; return c; }).filter(Boolean)
+      .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+  }
+  function score(m) {
+    var r = {};
+    if (m.hoosh) r.hoosh = (3 * m.hoosh.c - m.hoosh.w) / (3 * SEC.hoosh.n) * 100;
+    var num = 0, den = 0, cnt = 0;
+    ACAD.forEach(function (s) { if (m[s]) { cnt++; r[s] = (3 * m[s].c - m[s].w) / (3 * SEC[s].n) * 100; num += SEC[s].w * (3 * m[s].c - m[s].w); den += SEC[s].w * 3 * SEC[s].n; } });
+    if (cnt) { r.acad = num / den * 100; r.acadFull = cnt === ACAD.length; }
+    if (r.hoosh !== undefined && r.acadFull) r.total = 0.5 * r.hoosh + 0.5 * r.acad;
+    return r;
+  }
+  function f1(x) { return fa((Math.round(x * 10) / 10).toString()).replace('.', '٫'); }
+  function addMock(v) { v.t = now(); DOC.mocks['m' + now().toString(36) + Math.floor(Math.random() * 1296).toString(36)] = v; touch(); }
+  function deleteMock(id) { if (DOC.mocks[id]) { DOC.mocks[id] = { del: true, t: now() }; touch(); render(); } }
+  function renderMocks() {
+    var j = P.d2j(S.today);
+    var h = '<section class="card"><h3>ثبت آزمون</h3><p class="muted">بعد از هر آزمون کامل یا دفترچهٔ هوش، تعداد درست و غلط هر بخش را وارد کن. بخش‌هایی که در آزمون نبود را خالی بگذار.</p>';
+    h += '<form class="mform" id="mform" novalidate><div class="frow">' +
+      '<label>عنوان<input id="m-title" class="inp title" maxlength="60" placeholder="مثلاً آزمون ورودی ۱۴۰۲"></label>' +
+      '<label>روز<select id="m-d" class="inp">' + rangeOpts(1, 31, j.jd) + '</select></label>' +
+      '<label>ماه<select id="m-m" class="inp">' + P.MONTHS.map(function (n, i) { return '<option value="' + (i + 1) + '"' + (i + 1 === j.jm ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></label>' +
+      '<label>سال<select id="m-y" class="inp">' + rangeOpts(1405, 1406, j.jy) + '</select></label></div>';
+    h += '<div class="mgrid"><span class="h">بخش</span><span class="h">درست</span><span class="h">غلط</span><span class="h">از</span>';
+    SECS.forEach(function (s, i) {
+      if (i === 1) h += '<span class="sep"></span>';
+      h += '<span>' + T(SEC[s].l) + '</span><input id="m-' + s + '-c" class="inp num" inputmode="numeric" aria-label="' + T(SEC[s].l + ' درست') + '">' +
+        '<input id="m-' + s + '-w" class="inp num" inputmode="numeric" aria-label="' + T(SEC[s].l + ' غلط') + '"><span class="of">' + fa(SEC[s].n) + '</span>';
+    });
+    h += '</div><p class="prev" id="m-prev"></p><p class="err" id="m-err" role="alert"></p><div class="acts"><button type="submit" class="btn primary">ذخیرهٔ آزمون</button></div></form></section>';
+    var list = allMocks();
+    h += '<section class="sec"><h2>آزمون‌های ثبت‌شده</h2>';
+    if (!list.length) h += '<p class="muted">هنوز آزمونی ثبت نشده. اولین مورد، آزمون تشخیصی هوش در هفتهٔ صفر است.</p>';
+    else {
+      h += chartHtml(list);
+      h += '<div class="tblwrap"><table class="tbl"><thead><tr><th>تاریخ</th><th>عنوان</th><th>هوش</th><th>تحصیلی</th><th>کل سمپاد (تخمینی)</th><th><span class="sr">حذف</span></th></tr></thead><tbody>' +
+        list.slice().reverse().map(function (m) {
+          var r = score(m), jj = parseJKey(m.date);
+          return '<tr><td>' + T(dLabel(jj, true)) + '</td><td class="wrap">' + T(m.title) + '</td><td>' + (r.hoosh !== undefined ? f1(r.hoosh) + '٪' : '—') + '</td><td>' +
+            (r.acad !== undefined ? f1(r.acad) + '٪' + (r.acadFull ? '' : ' <span class="muted">(ناقص)</span>') : '—') + '</td><td><b>' + (r.total !== undefined ? f1(r.total) + '٪' : '—') + '</b></td>' +
+            '<td><button type="button" class="del" data-act="del-mock" data-mid="' + esc(m.id || '') + '" data-shared="' + (m.shared ? 1 : 0) + '">حذف</button></td></tr>';
+        }).join('') + '</tbody></table></div>';
+    }
+    h += '<p class="muted" style="margin-top:10px">' + T('نمرهٔ هر بخش = (۳ × درست − غلط) ÷ (۳ × تعداد سؤال). نمرهٔ کل سمپاد = نصف هوش + نصف تحصیلی، که در تحصیلی ریاضی و علوم ضریب ۳، فارسی و مطالعات و پیام‌ها ضریب ۲ و عربی ضریب ۱ دارند. حدنصاب قبولی هر مدرسه فرق دارد؛ روندِ رو به بالا مهم است.') + '</p></section>';
+    VIEW.innerHTML = h;
+  }
+  function rangeOpts(a, b, sel) { var o = ''; for (var i = a; i <= b; i++) o += '<option value="' + i + '"' + (i === sel ? ' selected' : '') + '>' + fa(i) + '</option>'; return o; }
+  function readForm() {
+    var err = '', m = {};
+    var y = +$('#m-y').value, mo = +$('#m-m').value, d = +$('#m-d').value;
+    if (d > (mo <= 6 ? 31 : 30)) err = 'این ماه ' + fa(mo <= 6 ? 31 : 30) + ' روز دارد.';
+    m.date = jKey(P.j2d(y, mo, Math.min(d, mo <= 6 ? 31 : 30)));
+    m.title = ($('#m-title').value || '').trim() || 'آزمون';
+    var any = false;
+    SECS.forEach(function (s) {
+      var cv = toEn($('#m-' + s + '-c').value.trim()), wv = toEn($('#m-' + s + '-w').value.trim());
+      if (cv === '' && wv === '') return;
+      var c = cv === '' ? 0 : Number(cv), w = wv === '' ? 0 : Number(wv);
+      if (!Number.isInteger(c) || !Number.isInteger(w) || c < 0 || w < 0) { err = err || 'در بخش ' + SEC[s].l + ' فقط عدد صحیح وارد کن.'; return; }
+      if (c + w > SEC[s].n) { err = err || 'در بخش ' + SEC[s].l + ' جمع درست و غلط از ' + fa(SEC[s].n) + ' بیشتر شده.'; return; }
+      m[s] = { c: c, w: w }; any = true;
+    });
+    if (!any && !err) err = 'حداقل یک بخش را پر کن.';
+    return { m: m, err: err };
+  }
+  function updatePreview() {
+    var el = $('#m-prev'); if (!el) return;
+    var r = readForm(), sc = score(r.m), parts = [];
+    if (sc.hoosh !== undefined) parts.push('هوش <b>' + f1(sc.hoosh) + '٪</b>');
+    if (sc.acad !== undefined) parts.push('تحصیلی <b>' + f1(sc.acad) + '٪</b>' + (sc.acadFull ? '' : ' (فقط بخش‌های واردشده)'));
+    if (sc.total !== undefined) parts.push('کل سمپاد <b>' + f1(sc.total) + '٪</b>');
+    el.innerHTML = parts.join(' · ');
+  }
+  function chartHtml(list) {
+    var pts = list.map(function (m, i) { var r = score(m); return { i: i, h: r.hoosh, t: r.total }; });
+    var vals = []; pts.forEach(function (p) { if (p.h !== undefined) vals.push(p.h); if (p.t !== undefined) vals.push(p.t); });
+    if (vals.length < 2) return '';
+    var W = 640, H = 200, L = 34, R = 12, TP = 12, B = 22;
+    var lo = Math.min(0, Math.floor(Math.min.apply(null, vals) / 25) * 25), hi = 100;
+    var n = pts.length, x = function (i) { return n === 1 ? (L + W - R) / 2 : W - R - (i / (n - 1)) * (W - L - R); };
+    var y = function (v) { return TP + (hi - v) / (hi - lo) * (H - TP - B); };
+    var g = '';
+    for (var v = lo; v <= hi; v += 25) g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--drop-line)" stroke-dasharray="3 4"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + fa(v) + '</text>';
+    function line(key, color) {
+      var p = pts.filter(function (q) { return q[key] !== undefined; });
+      if (!p.length) return '';
+      var d = p.map(function (q, k) { return (k ? 'L' : 'M') + x(q.i).toFixed(1) + ' ' + y(q[key]).toFixed(1); }).join(' ');
+      return '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2"/>' + p.map(function (q, k) {
+        return '<circle cx="' + x(q.i).toFixed(1) + '" cy="' + y(q[key]).toFixed(1) + '" r="' + (k === p.length - 1 ? 4.5 : 3) + '" fill="' + color + '"/>';
+      }).join('');
+    }
+    return '<div class="legend" aria-hidden="true"><span><i style="background:var(--c-hoosh)"></i>هوش</span><span><i style="background:var(--ink)"></i>کل سمپاد (تخمینی)</span></div>' +
+      '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="روند نمره‌ها در آزمون‌ها؛ جدیدترین آزمون سمت چپ">' + g + line('h', 'var(--c-hoosh)') + line('t', 'var(--ink)') + '</svg>';
+  }
+
+  /* ---------- road map ---------- */
+  function renderRoad() {
+    var h = '';
+    var shares = SECS.map(function (s) { var sec = SEC[s]; return { s: s, l: sec.l, n: sec.n, w: sec.w, p: s === 'hoosh' ? 50 : sec.n * sec.w / 170 * 50 }; });
+    h += '<section><h2 class="sr-h">آزمون چطور است؟</h2><div class="grid2" style="margin-top:0">';
+    h += '<div class="card"><p class="eyebrow">سهم هر بخش از نمرهٔ سمپاد</p><div class="share" role="img" aria-label="نیمی از نمره مال استعداد تحلیلی است">' +
+      shares.map(function (x) { return '<span style="width:' + x.p.toFixed(2) + '%;background:var(--c-' + x.s + ')"></span>'; }).join('') + '</div>' +
+      '<div class="tblwrap"><table class="tbl"><thead><tr><th>بخش</th><th>سؤال</th><th>ضریب</th><th>سهم از کل</th></tr></thead><tbody>' +
+      shares.map(function (x) { return '<tr><td><span class="c-' + x.s + '">■</span> ' + T(x.l) + '</td><td>' + fa(x.n) + '</td><td>' + fa(x.w) + '</td><td><b>' + f1(x.p) + '٪</b></td></tr>'; }).join('') +
+      '</tbody></table></div></div>';
+    h += '<div class="card"><p class="eyebrow">قاعده‌ها</p><ul class="facts">' + [
+      'دو دفترچه: تحصیلی ۷۵ سؤال در ۷۵ دقیقه (فقط از کتاب‌های درسی نهم)، بعد تحلیلی ۵۰ سؤال در ۵۰ دقیقه.',
+      'هر جواب درست ۳+، هر جواب غلط ۱−، نزده صفر. حدس کورکورانه سودی ندارد؛ اگر یک گزینه را رد کردی، زدن به‌صرفه است.',
+      'نمرهٔ سمپاد = ۵۰٪ تحلیلی + ۵۰٪ تحصیلی.',
+      'نمرهٔ نمونه دولتی (همین آزمون) = ۱۰٪ تحلیلی + ۶۰٪ تحصیلی + ۳۰٪ معدل کتبی خرداد نهم.',
+      'هنگام ثبت‌نام تا ۴ مدرسهٔ سمپاد را به ترتیب اولویت انتخاب می‌کنید و بعداً عوض نمی‌شود.'
+    ].map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') + '</ul></div></div></section>';
+    h += '<section class="card gate sec"><h3>شرط ثبت‌نام: معدل ۱۹</h3><p>' + T('برای دانش‌آموز مدرسهٔ غیرسمپاد، معدل کل خرداد پایهٔ هشتم و معدل نوبت اول پایهٔ نهم هر دو باید حداقل ۱۹ باشد. یعنی امتحان‌های دی ماه، دروازهٔ ورود به آزمون‌اند؛ برای همین فاز ۱ و ۲ همراه مدرسه جلو می‌روند.') + '</p></section>';
+    h += '<section class="sec"><h2>تاریخ‌های مهم</h2><div class="card dates">' + [
+      ['دی ۱۴۰۵', 'امتحان‌های نوبت اول. معدل باید ۱۹ یا بیشتر شود.'],
+      ['اردیبهشت ۱۴۰۶', 'دفترچه و ثبت‌نام در sanjesh.org. پارسال دفترچه ۷ اردیبهشت منتشر شد، ثبت‌نام ۸ تا ۱۳ و دور دوم ۱۷ تا ۲۱ اردیبهشت بود.'],
+      ['خرداد ۱۴۰۶', 'امتحان‌های پایانی نهم؛ معدل کتبی خرداد ۳۰٪ نمرهٔ نمونه دولتی است.'],
+      ['اواخر خرداد ۱۴۰۶', 'آزمون ورودی. پارسال ۲۹ خرداد بود و سال قبلش ۳۰ خرداد ساعت ۸ صبح. تاریخ دقیق را بعد از اعلام در «تنظیمات» وارد کنید.'],
+      ['مرداد ۱۴۰۶', 'اعلام نتیجه (پارسال ۱۹ مرداد).']
+    ].map(function (r) { return '<div><b>' + T(r[0]) + '</b><span>' + T(r[1]) + '</span></div>'; }).join('') + '</div></section>';
+    h += '<section class="sec"><h2>فازها</h2>' + timelineHtml() + '<div class="phases">';
+    var curW = weekOf(clampDay(S.today));
+    P.PHASES.forEach(function (ph) {
+      var sp = phaseSpan(ph), n = 0, d = 0, minutes = 0, weeks = {};
+      S.plan.days.forEach(function (dy) {
+        if (dy.phase !== ph.key) return;
+        weeks[dy.week] = 1;
+        dy.tasks.forEach(function (t) { n++; minutes += t.m; if (isDone(t.id)) d++; });
+      });
+      var wc = Object.keys(weeks).length, cur = curW >= ph.w0 && curW <= ph.w1;
+      var perWeek = wc ? minutes / wc / 60 : 0;
+      var load = ph.key === 'p0' ? 'حدود ' + Math.round(minutes / 60) + ' ساعت در کل' :
+        ph.key === 'p4' ? 'روزهای فشرده حدود ۴ ساعت' :
+        (ph.key === 'p2' || ph.key === 'p6') ? 'درس‌های امتحان + هوش روزانه' : 'حدود ' + Math.round(perWeek) + ' ساعت در هفته';
+      h += '<article class="card phase' + (cur ? ' cur' : '') + '"><div class="when"><b>' + T(ph.n) + '</b>' + T(dLabel(sp.a) + ' تا ' + dLabel(sp.b)) + '<br>' + T(wc + ' هفته · ' + load) + '</div>' +
+        '<div><h3>' + T(ph.t) + (cur ? ' <span class="prio">الان</span>' : '') + '</h3><p class="muted">' + T(ph.goal) + '</p><ul>' + ph.pts.map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') + '</ul>' +
+        '<div class="pm">' + meter(pct(d, n)) + '<span>' + T(pct(d, n) + '٪ انجام شده') + '</span></div></div></article>';
+    });
+    h += '</div></section>';
+    VIEW.innerHTML = h;
+  }
+  function timelineHtml() {
+    var total = lastWeek() + 1, curW = weekOf(clampDay(S.today)), cols = [];
+    P.PHASES.forEach(function (ph) {
+      var a = ph.w0, b = Math.min(ph.w1, total - 1);
+      if (b < a) return;
+      cols.push({ ph: ph, span: b - a + 1, cur: curW >= a && curW <= b });
+    });
+    var tpl = cols.map(function (c) { return c.span + 'fr'; }).join(' ');
+    var nowRight = ((curW + 0.5) / total * 100).toFixed(2);
+    return '<div class="tl" style="grid-template-columns:' + tpl + '" aria-hidden="true"><span class="now" style="right:' + nowRight + '%">اکنون</span>' +
+      cols.map(function (c) { return '<span class="seg' + (c.cur ? ' cur' : '') + '"></span>'; }).join('') +
+      cols.map(function (c) { return '<span class="lab">' + T(c.ph.key === 'p0' ? '۰' : c.ph.n.replace('فاز ', '')) + '</span>'; }).join('') + '</div>';
+  }
+
+  /* ---------- books ---------- */
+  var BOOKS = [
+    { h: 'استعداد تحلیلی', n: 'نصف نمرهٔ سمپاد', items: [
+      ['اولویت ۱ · همین حالا', 'هوش و استعداد تحلیلی نهم (سری IQ)', 'گاج', 'درسنامه و پاسخ تشریحی دارد؛ برای یاد گرفتن تیپ‌ها در فاز ۱. جایگزین درسنامه‌دار: «هوش و خلاقیت و استعداد تحلیلی ششم تا نهم» از کاهه.'],
+      ['اولویت ۲ · تا دی', 'هوش و استعداد تحلیلی نهم تیزهوشان', 'خیلی سبز', 'حدود ۱۴۸۰ تست با پاسخ تشریحی، بدون درسنامه؛ برای تمرین زمان‌دار از فاز ۳. جایگزین: «۱۵۰۰ تست استعداد تحلیلی تیزهوشان نهم» از مهروماه.'],
+      ['رایگان', 'دفترچه‌های آزمون ورودی ۱۴۰۰ تا ۱۴۰۵', 'سؤال و کلید', 'برای آزمون تشخیصی و آزمون‌های کامل؛ از sanjesh.org یا سایت‌های آموزشی مثل gama.ir.']
+    ] },
+    { h: 'ریاضی', n: '۱۳٪ نمره و پایهٔ سؤال‌های عددی هوش', items: [
+      ['اولویت ۱ · همین حالا', 'ریاضی نهم تیزهوشان', 'خیلی سبز', 'درسنامه و حدود ۱۸۰۰ تست در دو جلد. جایگزین: «ریاضی نهم» سری IQ گاج.'],
+      ['پیشنهادی', 'معلم خصوصی ریاضی', 'هفته‌ای یک جلسه', 'تا آخر بهمن. برای ریاضی ضعیف بیشترین اثر را دارد؛ معلم همان فصلی را کار کند که در برنامهٔ آن هفته است.'],
+      ['رایگان یا ارزان', 'ویدیوهای فصل‌به‌فصل ریاضی نهم', 'gama.ir', 'برای درسی که مدرسه هنوز نگفته یا سخت بوده.']
+    ] },
+    { h: 'علوم تجربی', n: '۱۳٪ نمره، نقطهٔ قوت', items: [
+      ['اولویت ۱ · همین حالا', 'علوم تیزهوشان نهم', 'خیلی سبز', 'درسنامه و حدود ۱۹۰۰ تست. جایگزین: «آموزش پیشرفتهٔ علوم تجربی تیزهوشان نهم» از گل‌واژه.']
+    ] },
+    { h: 'فارسی', n: '۹٪ نمره', items: [
+      ['اولویت ۱ · همین حالا', 'فارسی نهم', 'مبتکران', 'درسنامه و حدود ۹۴۰ تست. جایگزین: «فارسی تیزهوشان نهم» از نشر الگو.']
+    ] },
+    { h: 'مطالعات، پیام‌ها و قرآن، عربی', n: 'روی‌هم ۱۵٪ نمره', items: [
+      ['اولویت ۲ · تا دی', 'مطالعات اجتماعی نهم تیزهوشان', 'خیلی سبز', 'یا سری رشادت از مبتکران.'],
+      ['دارید', 'کتاب‌های درسی (PDF)', 'منبع اصلی', 'برای پیام‌ها، قرآن و عربی کتاب درسی کافی است؛ تست را از کتاب جامع بزنید.']
+    ] },
+    { h: 'جامع و آزمون', n: 'برای فاز ۴ و ۵', items: [
+      ['اولویت ۳ · تا اسفند', 'جامع تیزهوشان نهم (سری IQ)', 'گاج', 'حدود ۲۸۷۰ سؤال از همهٔ درس‌ها، برای دور دوم و سوم. جایگزین: جامع تیزهوشان نهم مهروماه.'],
+      ['اولویت ۳ · تا اسفند', 'آزمون‌های نمونه دولتی و تیزهوشان ۳۱+۱ استان نهم به دهم', 'پویش اندیشهٔ خوارزمی', 'حدود ۱۸۷۰ تست از آزمون‌های واقعی استانی و سمپاد؛ برای آزمون‌های شبیه‌ساز.'],
+      ['اختیاری', 'آزمون‌های آزمایشی قلم‌چی یا گاج', 'از بهمن', 'ماهی یکی دو بار، برای اینکه جایگاهش را بین بقیه ببیند.']
+    ] }
+  ];
+  function renderBooks() {
+    var h = '<div class="books">' + BOOKS.map(function (b) {
+      return '<section class="card"><h3>' + T(b.h) + '<small>' + T(b.n) + '</small></h3>' + b.items.map(function (it) {
+        var p0 = /^(رایگان|دارید|اختیاری|پیشنهادی)/.test(it[0]);
+        return '<div class="item"><span class="prio' + (p0 ? ' p0' : '') + '">' + T(it[0]) + '</span><span class="nm">' + T(it[1]) + '</span> <span class="pb">· ' + T(it[2]) + '</span><p>' + T(it[3]) + '</p></div>';
+      }).join('') + '</section>';
+    }).join('') + '</div>';
+    h += '<div class="grid2"><section class="card"><h3>اگر بودجه را اولویت‌بندی کنید</h3><ol class="muted" style="margin:6px 0 0;padding-inline-start:20px">' +
+      ['کتاب هوش درسنامه‌دار', 'کتاب ریاضی تیزهوشان', 'معلم خصوصی ریاضی', 'کتاب تست هوش', 'علوم و فارسی', 'کتاب جامع و ۳۱+۱ استان', 'آزمون‌های آزمایشی'].map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') +
+      '</ol></section><section class="card"><h3>دو قاعده</h3><p class="muted">' + T('۷۵ سؤال تحصیلی فقط از کتاب‌های درسی نهم طرح می‌شود؛ پس متن کتاب درسی منبع اول است و کتاب کمک‌درسی بعد از آن.') + '</p><p class="muted">' +
+      T('از هر درس فقط یک کتاب. کتاب زیاد یعنی هیچ‌کدام تمام نمی‌شود. تعداد تست‌ها طبق معرفی ناشر و فروشنده است و در چاپ جدید ممکن است کمی فرق کند.') + '</p></section></div>';
+    VIEW.innerHTML = h;
+  }
+
+  /* ---------- rules ---------- */
+  var RULES = [
+    ['هر جلسه', ['۵۰ دقیقه درس، ۱۰ دقیقه استراحت. در استراحت از جایت بلند شو؛ گوشی نه.', 'زمانِ هر کار سقف است، نه کف. اگر زودتر تمام شد، تیک بزن و برو.']],
+    ['گوشی', ['وقت درس، گوشی بیرون از اتاق باشد.', 'اول کارهای روز را تیک بزن، بعد گوشی.', 'سقف روزانهٔ سرگرمی با گوشی را با پشتیبان توافق کن؛ پیشنهاد: روزهای مدرسه حدود یک ساعت و نیم، و یک ساعت قبل از خواب بدون صفحه.']],
+    ['خواب و ورزش', ['شبی ۸ تا ۹ ساعت خواب.', 'هفته‌ای حداقل سه بار ورزش یا پیاده‌روی. مغز خسته سؤال هوش را بد جواب می‌دهد.']],
+    ['اگر عقب افتادی', ['کارهای جامانده را روی روزهای بعد تلنبار نکن.', 'پنجشنبه برای جبران است. اگر باز هم ماند، رهایش کن و برنامهٔ روز را جلو برو.', 'هدف هفتگی: حداقل ۸۰٪ تیک.']],
+    ['دفتر اشتباهات', ['برای هر سؤال غلط یا نزده: صورت سؤال، راه درست، و یک جمله که چرا غلط شد.', 'جمعه‌ها همین دفتر را بدون نگاه به جواب دوباره حل کن.']],
+    ['تست‌زنی با نمرهٔ منفی', ['درست ۳+، غلط ۱−، نزده صفر.', 'اگر هیچ گزینه‌ای را نمی‌توانی رد کنی، نزن. اگر حداقل یکی را رد کردی، زدن به‌صرفه است.', 'برای هر سؤال حدود یک دقیقه وقت هست؛ سؤال سخت را علامت بزن و آخر برگرد.']],
+    ['جایزه', ['هفته‌ای که ۸۵٪ یا بیشتر تیک خورد: یک جایزهٔ کوچک که از قبل با پشتیبان توافق شده.', 'پایان هر فاز: یک جایزهٔ بزرگ‌تر. جایزه برای تلاش است، نه فقط نمره.']],
+    ['مدرسه', ['تکلیف‌های مدرسه جدا از این برنامه است. اگر تکلیف، همان درسِ جلسهٔ امروز است، می‌توانی آن را جزو همان جلسه حساب کنی.', 'اگر مدرسه از برنامه عقب‌تر است، درس جدید را با ویدیوی آموزشی پیش‌خوانی کن. اگر جلوتر است، ترتیب برنامه را ادامه بده.']]
+  ];
+  function renderRules() {
+    var h = '<div class="rules">' + RULES.map(function (r) {
+      return '<section class="card"><h3>' + T(r[0]) + '</h3><ul>' + r[1].map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') + '</ul></section>';
+    }).join('') + '</div>';
+    h += '<section class="sec"><h2>راهنمای پشتیبان</h2><div class="grid2" style="margin-top:0">' +
+      '<section class="card"><h3>تیک‌ها کجا ذخیره می‌شوند</h3><ul class="facts">' + [
+        'تیک‌ها، نمره‌ها و تنظیمات در یک مخزن خصوصی گیت‌هاب ذخیره می‌شوند. هر دستگاهی که یک بار با رمز وارد شود، همان اطلاعات را می‌بیند.',
+        'هر ذخیره یک نسخه در تاریخچهٔ گیت‌هاب می‌سازد؛ اگر چیزی اشتباهی پاک شد، نسخهٔ قبلی قابل برگرداندن است.',
+        'اگر اینترنت قطع بود، تیک‌ها روی همان دستگاه می‌مانند و با وصل شدن، خودکار ذخیره می‌شوند.'
+      ].map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') + '</ul></section>' +
+      '<section class="card"><h3>تماس هفتگی، ۱۰ دقیقه</h3><ul class="facts">' + [
+        'درصد تیک‌های هفته و نمرهٔ آزمون، اگر بود.',
+        'یک چیزی که این هفته سخت بود، و یک تشویق مشخص برای تلاشش.',
+        'نمرهٔ پایین در آزمون‌های اول طبیعی است؛ روند مهم است، نه یک عدد.',
+        'اگر دو هفتهٔ پشت سر هم زیر ۶۰٪ بود، برنامه برایش سنگین است و باید سبک‌تر شود.'
+      ].map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') + '</ul></section></div></section>';
+    VIEW.innerHTML = h;
+  }
+
+  /* ---------- settings ---------- */
+  var OVL = $('#ovl');
+  function openSettings() {
+    var s = S.settings, ej = P.d2j(parseJKey(s.examJ));
+    var canEdit = true;
+    var h = '<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="set-h"><h2 id="set-h">تنظیمات</h2>' +
+      (canEdit ? '' : '<p class="hint">تنظیمات را پشتیبان تعیین می‌کند؛ این‌جا فقط نمایش داده می‌شود.</p>') +
+      '<fieldset><legend>روزهای کلاس زبان</legend><div class="chips" id="set-eng">' +
+      [0, 1, 2, 3, 4, 5].map(function (i) { return '<button type="button" class="chip" data-wd="' + i + '" aria-pressed="' + (s.eng.indexOf(i) >= 0) + '"' + (canEdit ? '' : ' disabled') + '>' + P.WEEKDAYS[i] + '</button>'; }).join('') +
+      '</div><p class="hint">حداکثر دو روز. این روزها برنامه سبک‌تر است و درس‌ها خودبه‌خود بین بقیهٔ روزها پخش می‌شوند.</p></fieldset>' +
+      '<fieldset><legend>تاریخ آزمون</legend><div class="frow"><label>روز<select id="set-d" class="inp"' + (canEdit ? '' : ' disabled') + '>' + rangeOpts(1, 31, ej.jd) + '</select></label>' +
+      '<label>ماه<select id="set-m" class="inp"' + (canEdit ? '' : ' disabled') + '>' + [2, 3, 4].map(function (m) { return '<option value="' + m + '"' + (m === ej.jm ? ' selected' : '') + '>' + P.MONTHS[m - 1] + '</option>'; }).join('') + '</select></label>' +
+      '<label>سال<select id="set-y" class="inp" disabled><option>' + fa(1406) + '</option></select></label></div>' +
+      '<p class="hint">' + T('تاریخ دقیق در دفترچهٔ ثبت‌نام (اردیبهشت) یا کارت ورود به جلسه اعلام می‌شود. تا آن موقع ۲۸ خرداد در نظر گرفته شده. هفتهٔ آخر برنامه خودبه‌خود با این تاریخ تنظیم می‌شود.') + '</p></fieldset>' +
+      '<p class="err" id="set-err" role="alert"></p><div class="acts">' + (canEdit ? '<button type="button" class="btn primary" data-act="save-settings">ذخیره</button>' : '') + '<button type="button" class="btn" data-act="close-settings">بستن</button></div>' +
+      (GH.token ? '<p class="hint" style="margin-top:16px">روی دستگاه مشترک؟ <button type="button" class="btn sm" data-act="lock">خروج از این دستگاه</button></p>' : '') + '</div>';
+    OVL.innerHTML = h; OVL.hidden = false;
+    var first = OVL.querySelector('.chip:not([disabled]), .btn'); if (first) first.focus();
+  }
+  function closeSettings() { OVL.hidden = true; OVL.innerHTML = ''; var b = document.querySelector('[data-act="settings"]'); if (b) b.focus(); }
+  function saveSettings() {
+    var eng = Array.prototype.filter.call(OVL.querySelectorAll('.chip[aria-pressed="true"]'), function () { return true; }).map(function (b) { return +b.dataset.wd; });
+    var d = +$('#set-d', OVL).value, m = +$('#set-m', OVL).value, err = '';
+    if (eng.length > 2) err = 'حداکثر دو روز کلاس زبان را انتخاب کن.';
+    var maxD = m <= 6 ? 31 : 30;
+    if (d > maxD) err = err || P.MONTHS[m - 1] + ' ' + fa(maxD) + ' روز دارد.';
+    var jd = P.j2d(1406, m, Math.min(d, maxD));
+    if (!err && (jd < EXAM_MIN || jd > EXAM_MAX)) err = 'تاریخ آزمون باید بین ۱۵ اردیبهشت و ۳۱ تیر ۱۴۰۶ باشد.';
+    if (err) { $('#set-err', OVL).textContent = err; return; }
+    var examChanged = jKey(jd) !== S.settings.examJ;
+    var next = { eng: eng.sort(), examJ: jKey(jd), examSet: S.settings.examSet || examChanged };
+    next.t = now(); DOC.settings = next; touch();
+    applySettings(next);
+    closeSettings();
+    toast('تنظیمات ذخیره شد');
+  }
+  function applySettings(raw) {
+    var n = normSettings(raw); if (raw && raw.t) n.t = raw.t;
+    if (canon(n) === canon(S.settings) && S.plan) return;
+    S.settings = n; rebuild(); render();
+  }
+
+  /* ---------- render & inputs ---------- */
+  function capture() {
+    var keep = { v: {}, open: {} };
+    Array.prototype.forEach.call(VIEW.querySelectorAll('input[id], select[id], textarea[id]'), function (el) { keep.v[el.id] = el.value; });
+    Array.prototype.forEach.call(VIEW.querySelectorAll('details[data-k]'), function (el) { keep.open[el.dataset.k] = el.open; });
+    var a = document.activeElement; keep.focus = a && VIEW.contains(a) && a.id ? a.id : null;
+    return keep;
+  }
+  function restore(keep, sameView) {
+    if (!sameView) return;
+    Object.keys(keep.v).forEach(function (id) { var el = document.getElementById(id); if (el && el.tagName !== 'BUTTON') el.value = keep.v[id]; });
+    Object.keys(keep.open).forEach(function (k) { var el = VIEW.querySelector('details[data-k="' + k + '"]'); if (el) el.open = keep.open[k]; });
+    if (keep.focus) { var f = document.getElementById(keep.focus); if (f) f.focus({ preventScroll: true }); }
+    var ex = document.getElementById('exp-text'); if (ex && ex.value) ex.hidden = false;
+  }
+  var lastView = null;
+  function render() {
+    if (!S.plan) return;
+    renderHeader();
+    var keep = capture(), same = lastView === S.view;
+    if (S.view === 'today') renderToday();
+    else if (S.view === 'week') renderWeek();
+    else if (S.view === 'road') renderRoad();
+    else if (S.view === 'mocks') renderMocks();
+    else if (S.view === 'books') renderBooks();
+    else renderRules();
+    if (S.status === 'locked') VIEW.insertAdjacentHTML('afterbegin', lockHtml());
+    restore(keep, same);
+    lastView = S.view;
+    if (S.view === 'mocks') updatePreview();
+    if (S.lastFocus) {
+      var el = VIEW.querySelector('[data-id="' + S.lastFocus.replace(/"/g, '') + '"]');
+      if (el) el.focus({ preventScroll: true });
+      S.lastFocus = null;
+    }
+  }
+  function setView(v) {
+    if (VIEWS.indexOf(v) < 0) v = 'today';
+    S.view = v; LS.set('view', v);
+    try { history.replaceState(null, '', '#' + v); } catch (e) { /* not allowed here */ }
+    render();
+    window.scrollTo({ top: 0 });
+  }
+  var toastTimer = null;
+  function toast(msg) {
+    var el = $('#toast'); el.textContent = fa(msg); el.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2600);
+  }
+
+  /* ---------- events ---------- */
+  function handleAct(act, el) {
+    var j = clampDay(S.cursor == null ? S.today : S.cursor);
+    if (act === 'prev-day') { S.cursor = clampDay(j - 1); render(); }
+    else if (act === 'next-day') { S.cursor = clampDay(j + 1); render(); }
+    else if (act === 'today') { S.cursor = null; render(); }
+    else if (act === 'prev-week') { S.week = Math.max(0, S.week - 1); render(); }
+    else if (act === 'next-week') { S.week = Math.min(lastWeek(), S.week + 1); render(); }
+    else if (act === 'this-week') { S.week = null; render(); }
+    else if (act === 'settings') openSettings();
+    else if (act === 'close-settings') closeSettings();
+    else if (act === 'save-settings') saveSettings();
+    else if (act === 'lock') { LS.set('tok', null); GH.token = null; closeSettings(); setStatus(GH.cfg ? 'locked' : 'nocfg'); render(); toast('از این دستگاه خارج شدی'); }
+    else if (act === 'del-mock') {
+      if (el.dataset.confirm !== '1') { el.dataset.confirm = '1'; el.textContent = 'مطمئنی؟'; setTimeout(function () { if (el.isConnected) { el.dataset.confirm = ''; el.textContent = 'حذف'; } }, 3000); return; }
+      deleteMock(el.dataset.mid);
+    }
+  }
+  document.addEventListener('click', function (e) {
+    var row = e.target.closest('.row[data-id]');
+    if (row && VIEW.contains(row)) {
+      if (row.getAttribute('aria-disabled') === 'true') { toast('این مورد را پشتیبان ثبت کرده'); return; }
+      S.lastFocus = row.dataset.id; toggle(row.dataset.id); return;
+    }
+    var chip = e.target.closest('.chip[data-wd]');
+    if (chip && OVL.contains(chip)) {
+      var on = chip.getAttribute('aria-pressed') === 'true';
+      if (!on && OVL.querySelectorAll('.chip[aria-pressed="true"]').length >= 2) { $('#set-err', OVL).textContent = 'حداکثر دو روز کلاس زبان را انتخاب کن.'; return; }
+      chip.setAttribute('aria-pressed', String(!on)); $('#set-err', OVL).textContent = ''; return;
+    }
+    var go = e.target.closest('[data-go]');
+    if (go) { S.cursor = +go.dataset.go; render(); return; }
+    var act = e.target.closest('[data-act]');
+    if (act && !act.disabled) { handleAct(act.dataset.act, act); return; }
+    var tab = e.target.closest('.tab');
+    if (tab) { setView(tab.dataset.view); return; }
+    if (e.target === OVL) closeSettings();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !OVL.hidden) closeSettings();
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.target.classList && e.target.classList.contains('tab')) {
+      var i = VIEWS.indexOf(e.target.dataset.view), n = VIEWS[(i + (e.key === 'ArrowLeft' ? 1 : VIEWS.length - 1)) % VIEWS.length];
+      setView(n); var t = document.querySelector('.tab[data-view="' + n + '"]'); if (t) t.focus();
+    }
+  });
+  VIEW.addEventListener('input', function (e) { if (e.target.closest('#mform')) updatePreview(); });
+  VIEW.addEventListener('submit', function (e) {
+    if (e.target.id === 'lockform') {
+      e.preventDefault();
+      var pw = $('#lock-pw').value, le = $('#lock-err');
+      if (!pw) { le.textContent = 'رمز را وارد کن.'; return; }
+      le.textContent = 'در حال بررسی…';
+      unlock(pw).then(function () { toast('وارد شدی'); }, function () { le.textContent = 'رمز درست نیست.'; });
+      return;
+    }
+    if (e.target.id !== 'mform') return;
+    e.preventDefault();
+    var r = readForm(), errEl = $('#m-err');
+    if (r.err) { errEl.textContent = fa(r.err); return; }
+    errEl.textContent = '';
+    var v = cleanMock(r.m); if (!v) { errEl.textContent = 'اطلاعات آزمون کامل نیست.'; return; }
+    addMock(v);
+    e.target.reset();
+    var jj = P.d2j(S.today); $('#m-d').value = jj.jd; $('#m-m').value = jj.jm; $('#m-y').value = jj.jy;
+    toast('آزمون ذخیره شد'); render();
+  });
+
+  /* ---------- start ---------- */
+  rebuild();
+  var hv = (location.hash || '').replace('#', '');
+  S.view = VIEWS.indexOf(hv) >= 0 ? hv : (VIEWS.indexOf(LS.get('view', 'today')) >= 0 ? LS.get('view', 'today') : 'today');
+  document.documentElement.lang = 'fa';
+  if (DOC.settings) { S.settings = normSettings(DOC.settings); rebuild(); }
+  render();
+  startSync();
+  setInterval(function () { var t = tehranToday(); if (t !== S.today) { S.today = t; render(); } }, 60000);
+  setInterval(function () { if (!document.hidden && GH.token) sync(); }, 60000);
+  document.addEventListener('visibilitychange', function () { if (GH.token) sync(); });
+  window.addEventListener('online', function () { if (GH.token) sync(); });
+})();
+
+</script>
+
+</body>
+</html>
