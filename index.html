@@ -256,6 +256,39 @@ p { margin: 0; }
 .chip[aria-pressed="true"] { background: var(--drop); border-color: var(--drop); color: var(--on-drop); }
 .dlg .acts { display: flex; gap: 8px; justify-content: flex-start; margin-top: 18px; }
 
+/* skins: same layout, different ink. Each skin sets light tokens, then dark tokens with higher specificity. */
+:root[data-skin="sea"] { --paper: #f6f2e9; --sheet: #fffdf8; --tint: #e3eef7; --drop: #1d5f9b; --drop-line: #b7d0e6; --on-drop: #ffffff; --glow: #e8833a; }
+:root[data-skin="hero"] { --paper: #f4f5f9; --sheet: #ffffff; --tint: #fdeaea; --drop: #c4262e; --drop-line: #efbcbf; --on-drop: #ffffff; --glow: #1f3f8f; }
+:root[data-skin="night"] { --paper: #f7f5fc; --sheet: #ffffff; --tint: #eee8fb; --drop: #6a3fc2; --drop-line: #d5c8f2; --on-drop: #ffffff; --glow: #d6458f; }
+:root { --glow: #26734f; }
+@media (prefers-color-scheme: dark) {
+  :root[data-skin="sea"]:not([data-theme="light"]) { --paper: #0d151f; --sheet: #13202e; --tint: #16293b; --drop: #6db1ec; --drop-line: #2a4864; --on-drop: #06121d; --glow: #f0a060; }
+  :root[data-skin="hero"]:not([data-theme="light"]) { --paper: #0c1121; --sheet: #141b31; --tint: #2a1520; --drop: #ff6b70; --drop-line: #4c2a36; --on-drop: #1a0507; --glow: #8fb0ff; }
+  :root[data-skin="night"]:not([data-theme="light"]) { --paper: #110e1b; --sheet: #1a1627; --tint: #241c39; --drop: #b49dff; --drop-line: #3c305f; --on-drop: #120a24; --glow: #ff8cc6; }
+}
+:root[data-skin="sea"][data-theme="dark"] { --paper: #0d151f; --sheet: #13202e; --tint: #16293b; --drop: #6db1ec; --drop-line: #2a4864; --on-drop: #06121d; --glow: #f0a060; }
+:root[data-skin="hero"][data-theme="dark"] { --paper: #0c1121; --sheet: #141b31; --tint: #2a1520; --drop: #ff6b70; --drop-line: #4c2a36; --on-drop: #1a0507; --glow: #8fb0ff; }
+:root[data-skin="night"][data-theme="dark"] { --paper: #110e1b; --sheet: #1a1627; --tint: #241c39; --drop: #b49dff; --drop-line: #3c305f; --on-drop: #120a24; --glow: #ff8cc6; }
+
+.baracts { display: inline-flex; gap: 6px; }
+.hello { margin: 12px 0 4px; padding: 12px 14px 12px; background: var(--tint); border-radius: 10px; border-inline-start: 4px solid var(--drop); }
+.hello .eyebrow { font-size: 14px; }
+.hello.done { border-inline-start-color: var(--glow); }
+.hello.done .eyebrow { color: var(--ink); font-family: var(--display); font-weight: 400; font-size: 21px; }
+.hello.pop { animation: pop .5s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop { from { transform: scale(.94); opacity: .3; } to { transform: none; opacity: 1; } }
+.quote { margin: 4px 0 0; }
+.quote blockquote { margin: 0; font-size: 16.5px; font-weight: 600; line-height: 1.8; }
+.quote figcaption { font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+.quote figcaption::before { content: "— "; }
+.quote .qnote { font-size: 13.5px; color: var(--ink-2); margin-top: 6px; }
+.toast small { display: block; font-size: 12px; opacity: .75; }
+.chip.skin { display: inline-flex; align-items: center; gap: 7px; }
+.sw { width: 16px; height: 16px; border-radius: 50%; flex: none; border: 1.5px solid rgba(128,128,128,.35); }
+.sw-sea { background: linear-gradient(135deg, #1d5f9b 55%, #e8833a 55%); }
+.sw-hero { background: linear-gradient(135deg, #c4262e 55%, #1f3f8f 55%); }
+.sw-night { background: linear-gradient(135deg, #6a3fc2 55%, #d6458f 55%); }
+.sw-sheet { background: linear-gradient(135deg, #c22e5a 55%, #fbedf1 55%); }
 .toast { position: fixed; inset-inline: 0; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); margin-inline: auto; width: max-content; max-width: calc(100% - 32px);
   background: var(--ink); color: var(--paper); padding: 8px 16px; border-radius: 8px; font-size: 14px; opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; z-index: 40; }
 .toast.show { opacity: 1; transform: none; }
@@ -275,7 +308,7 @@ p { margin: 0; }
   </header>
   <div class="bar">
     <span class="pill" id="mode">در حال اتصال…</span>
-    <button type="button" class="btn sm" data-act="settings">تنظیمات</button>
+    <span class="baracts"><button type="button" class="btn sm" data-act="settings">تنظیمات</button><button type="button" class="btn sm" id="bar-lock" data-act="lock" hidden>خروج</button></span>
   </div>
   <nav class="tabs" role="tablist" aria-label="بخش‌ها">
     <button type="button" class="tab" role="tab" data-view="today">امروز</button>
@@ -816,6 +849,22 @@ var TZPLAN = (function () {
 
   /* ---------- dates ---------- */
   var EXAM_MIN = P.j2d(1406, 2, 15), EXAM_MAX = P.j2d(1406, 4, 31);
+  var SKINS = [['sea', 'دریا'], ['hero', 'قهرمان'], ['night', 'شب'], ['sheet', 'پاسخ‌برگ']];
+  var QUOTES = {"_help":"start: جملهٔ شروع روز (به ترتیب، هر روز یکی). mock: روزهای آزمون. done: بعد از هر تیک (به ترتیب). dayDone: وقتی همهٔ کارهای روز تمام شد. t = متن، by = گوینده (خالی هم می‌شود)، note = یک خط توضیح (اختیاری). {name} با اسم عوض می‌شود.","start":[{"t":"من پادشاه دزدان دریایی می‌شم!","by":"لوفی، وان پیس","note":"هدف بزرگ داشته باش؛ امروز فقط کارهای امروز رو انجام بده."},{"t":"فقط یکی رو نجات بده.","by":"بتمن به فلش، لیگ عدالت","note":"به همهٔ کارها با هم فکر نکن. کار اول رو شروع کن، بقیه‌اش راه میاد."},{"t":"رؤیاها نجاتمون می‌دن. رؤیاها ما رو بالا می‌برن و بهترمون می‌کنن.","by":"سوپرمن","note":"مدرسهٔ تیزهوشان رؤیای توئه؛ امروز یه قدم به سمتش برو."},{"t":"چرا زمین می‌خوریم؟ تا یاد بگیریم دوباره بلند شیم.","by":"بتمن آغاز می‌کند","note":"هر سؤالی که امروز غلط زدی، بره توی دفتر اشتباهات. همین‌طوری قوی‌تر می‌شی."},{"t":"شمشیرزنی بلد نیستم، ناوبری بلد نیستم، آشپزی بلد نیستم، دروغ گفتن هم بلد نیستم! می‌دونم برای زنده موندن به کمک بقیه نیاز دارم!","by":"لوفی، وان پیس","note":"هرجا گیر کردی بپرس. کمک خواستن یعنی زرنگی، نه ضعف."},{"t":"زخم پشت، ننگ شمشیرزنه.","by":"زورو، وان پیس","note":"از سؤال سخت فرار نکن. پنج دقیقه باهاش کلنجار برو، بعد جواب رو ببین."},{"t":"مسئله لیاقت داشتن نیست؛ مسئله اینه که به چی باور داری.","by":"واندر وومن","note":"به خودت باور داشته باش، {name}."},{"t":"گنج من؟ اگه می‌خوایدش، مال شما. دنبالش بگردید!","by":"گلد راجر، وان پیس","note":"جایزه منتظرته؛ فقط باید دنبالش بری."},{"t":"اینکه زیر نقاب کی هستم مهم نیست؛ کاری که می‌کنم نشون می‌ده کی‌ام.","by":"بتمن آغاز می‌کند","note":"یه نمره نشون نمی‌ده کی هستی؛ کاری که هر روز می‌کنی نشون می‌ده."},{"t":"وان پیس واقعیه!","by":"ریش‌سفید، وان پیس","note":"قبولی هم واقعیه. هر تیک یه قدم به سمتشه."},{"t":"دیگه هیچ‌وقت نمی‌بازم!","by":"زورو، وان پیس","note":"دیروز هرجوری بود، امروز یه شروع تازه‌ست."},{"t":"تو خیلی قوی‌تر از اون چیزی هستی که فکر می‌کنی. به من اعتماد کن.","by":"سوپرمن","note":"حتی ریاضی هم از پسش برمیای."}],"mock":[{"t":"بدو، بری، بدو!","by":"فلش","note":"امروز آزمون داری: با ساعت، بدون گوشی، مثل روز اصلی."},{"t":"فقط یکی رو نجات بده.","by":"بتمن به فلش، لیگ عدالت","note":"سؤال سخت رو رد کن. اول همهٔ سؤال‌هایی که بلدی رو بزن."}],"done":[{"t":"یکی دیگه رفت!","by":""},{"t":"سوپر!","by":"فرانکی، وان پیس"},{"t":"آفرین {name}!","by":""},{"t":"دیگه هیچ‌وقت نمی‌بازم!","by":"زورو، وان پیس"},{"t":"یه قدم نزدیک‌تر به تیزهوشان.","by":""},{"t":"تو خیلی قوی‌تر از اون چیزی هستی که فکر می‌کنی.","by":"سوپرمن"},{"t":"تیک! این یکی هم مال تو.","by":""},{"t":"همین‌طوری ادامه بده، {name}.","by":""}],"dayDone":[{"t":"تو خیلی قوی‌تر از اون چیزی هستی که فکر می‌کنی. به من اعتماد کن.","by":"سوپرمن","note":"همهٔ کارهای امروز انجام شد."},{"t":"من پادشاه دزدان دریایی می‌شم!","by":"لوفی، وان پیس","note":"و تو هم داری راهت رو می‌ری. امروز کامل شد."},{"t":"روز کامل!","by":"","note":"{name}، امروز یه قدم به هدفت نزدیک‌تر شدی."},{"t":"سوپر!","by":"فرانکی، وان پیس","note":"همهٔ کارهای امروز تموم شد. حالا برو استراحت کن، {name}."}]};
+  function qList(k) { var l = QUOTES && QUOTES[k]; return Array.isArray(l) ? l.filter(function (x) { return x && typeof x.t === 'string'; }) : []; }
+  function qPick(k, i) { var l = qList(k); return l.length ? l[((i % l.length) + l.length) % l.length] : null; }
+  function qText(s) { return String(s || '').replace(/\{name\}/g, S.settings.name); }
+  function quoteHtml(q, cls) {
+    if (!q) return '';
+    return '<figure class="quote ' + (cls || '') + '"><blockquote>' + T('«' + qText(q.t) + '»') + '</blockquote>' +
+      (q.by ? '<figcaption>' + T(q.by) + '</figcaption>' : '') + (q.note ? '<p class="qnote">' + T(qText(q.note)) + '</p>' : '') + '</figure>';
+  }
+  function greet() {
+    var h = 12;
+    try { h = +new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Tehran', hour: 'numeric', hourCycle: 'h23' }).format(new Date()); } catch (e) { /* default */ }
+    return h < 5 ? 'شب بخیر' : h < 12 ? 'صبح بخیر' : h < 17 ? 'سلام' : h < 21 ? 'عصر بخیر' : 'شب بخیر';
+  }
+  function applySkin() { document.documentElement.setAttribute('data-skin', S.settings.skin); }
   function tehranToday() {
     try {
       var parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
@@ -839,7 +888,9 @@ var TZPLAN = (function () {
 
   /* ---------- state ---------- */
   function normSettings(s) {
-    var out = { eng: [0, 4], examJ: '1406-03-28', examSet: false };
+    var out = { eng: [0, 4], examJ: '1406-03-28', examSet: false, name: 'مینا', skin: 'sea' };
+    if (s && typeof s.name === 'string' && s.name.trim()) out.name = s.name.trim().slice(0, 20);
+    if (s && SKINS.some(function (k) { return k[0] === s.skin; })) out.skin = s.skin;
     if (s && Array.isArray(s.eng)) out.eng = s.eng.map(Number).filter(function (x, i, a) { return x === Math.floor(x) && x >= 0 && x <= 5 && a.indexOf(x) === i; }).slice(0, 2);
     if (s && typeof s.examJ === 'string') { var j = parseJKey(s.examJ); if (j && j >= EXAM_MIN && j <= EXAM_MAX) { out.examJ = jKey(j); out.examSet = !!s.examSet; } }
     return out;
@@ -953,6 +1004,7 @@ var TZPLAN = (function () {
       nocfg: ['warn', 'هنوز به گیت‌هاب وصل نشده؛ تیک‌ها روی همین دستگاه می‌مانند']
     }[S.status] || ['', ''];
     m.className = 'pill ' + map[0]; m.textContent = map[1];
+    var lo = $('#bar-lock'); if (lo) lo.hidden = !GH.token;
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) { b.setAttribute('aria-selected', String(b.dataset.view === S.view)); });
   }
 
@@ -968,9 +1020,20 @@ var TZPLAN = (function () {
     else if (day.rest) h += '<p class="empty">' + T(day.rest) + '</p>';
     else if (!day.tasks.length) h += '<p class="empty">امروز کاری در برنامه نیست.</p>';
     else {
+      h += '<!--HELLO-->';
       var total = day.tasks.reduce(function (a, t) { return a + t.m; }, 0);
       h += '<div class="dprog"><span>' + T(st.d + ' از ' + st.n + ' کار') + '</span>' + meter(pct(st.d, st.n)) + '<span>' + T(total ? 'حدود ' + mins(total) : '') + '</span></div>';
       h += '<div class="rows">' + day.tasks.map(function (t, i) { return rowHtml(t, i); }).join('') + '</div>';
+    }
+    if (day.tasks.length && !day.rest && !day.after) {
+      var di = j - S.plan.start, full = st.n > 0 && st.d === st.n, hello = '';
+      if (full) hello = '<section class="hello done' + (S.celebrate === j ? ' pop' : '') + '"><p class="eyebrow">' + T('روزت کامل شد، ' + S.settings.name + '!') + '</p>' + quoteHtml(qPick('dayDone', di)) + '</section>';
+      else {
+        var mockDay = day.tasks.some(function (t) { return t.s === 'azmoon'; });
+        hello = '<section class="hello"><p class="eyebrow">' + T(isToday ? greet() + '، ' + S.settings.name + '!' : 'جملهٔ این روز') + '</p>' + quoteHtml(mockDay ? qPick('mock', di) : qPick('start', di)) + '</section>';
+      }
+      S.celebrate = null;
+      h = h.replace('<!--HELLO-->', hello);
     }
     if (day.notes.length) h += '<ul class="notes">' + day.notes.map(function (n) { return '<li>' + T(n) + '</li>'; }).join('') + '</ul>';
     h += '</section>';
@@ -1067,7 +1130,15 @@ var TZPLAN = (function () {
   function saveLocal() { LS.set('doc', DOC); }
   function touch() { REV++; DOC.updated = now(); saveLocal(); schedule(1500); }
   function setDone(id, val) { DOC.done[id] = [val ? 1 : 0, now()]; touch(); }
-  function toggle(id) { setDone(id, !isDone(id)); render(); }
+  function toggle(id) {
+    var on = !isDone(id); setDone(id, on);
+    if (on) {
+      var dj = S.plan.byId[id], dy = S.dayMap.get(dj), st = dayStats(dy);
+      if (st.n && st.d === st.n) { S.celebrate = dj; var q = qPick('dayDone', dj - S.plan.start); toast(q ? qText(q.t) : 'روز کامل شد!', q && q.by, 4500); }
+      else { var n = LS.get('qn', 0); LS.set('qn', n + 1); var c = qPick('done', n); if (c) toast(qText(c.t), c.by, 3200); }
+    }
+    render();
+  }
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
   /* ---------- GitHub sync ---------- */
@@ -1412,7 +1483,9 @@ var TZPLAN = (function () {
     var s = S.settings, ej = P.d2j(parseJKey(s.examJ));
     var canEdit = true;
     var h = '<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="set-h"><h2 id="set-h">تنظیمات</h2>' +
-      (canEdit ? '' : '<p class="hint">تنظیمات را پشتیبان تعیین می‌کند؛ این‌جا فقط نمایش داده می‌شود.</p>') +
+      '<fieldset><legend>اسم</legend><input id="set-name" class="inp" maxlength="20" autocomplete="off" value="' + esc(s.name) + '" style="width:min(100%,220px)"></fieldset>' +
+      '<fieldset><legend>رنگ‌ها</legend><div class="chips" id="set-skin">' +
+      SKINS.map(function (k) { return '<button type="button" class="chip skin" data-skin="' + k[0] + '" aria-pressed="' + (s.skin === k[0]) + '"><i class="sw sw-' + k[0] + '" aria-hidden="true"></i>' + k[1] + '</button>'; }).join('') + '</div></fieldset>' +
       '<fieldset><legend>روزهای کلاس زبان</legend><div class="chips" id="set-eng">' +
       [0, 1, 2, 3, 4, 5].map(function (i) { return '<button type="button" class="chip" data-wd="' + i + '" aria-pressed="' + (s.eng.indexOf(i) >= 0) + '"' + (canEdit ? '' : ' disabled') + '>' + P.WEEKDAYS[i] + '</button>'; }).join('') +
       '</div><p class="hint">حداکثر دو روز. این روزها برنامه سبک‌تر است و درس‌ها خودبه‌خود بین بقیهٔ روزها پخش می‌شوند.</p></fieldset>' +
@@ -1421,13 +1494,13 @@ var TZPLAN = (function () {
       '<label>سال<select id="set-y" class="inp" disabled><option>' + fa(1406) + '</option></select></label></div>' +
       '<p class="hint">' + T('تاریخ دقیق در دفترچهٔ ثبت‌نام (اردیبهشت) یا کارت ورود به جلسه اعلام می‌شود. تا آن موقع ۲۸ خرداد در نظر گرفته شده. هفتهٔ آخر برنامه خودبه‌خود با این تاریخ تنظیم می‌شود.') + '</p></fieldset>' +
       '<p class="err" id="set-err" role="alert"></p><div class="acts">' + (canEdit ? '<button type="button" class="btn primary" data-act="save-settings">ذخیره</button>' : '') + '<button type="button" class="btn" data-act="close-settings">بستن</button></div>' +
-      (GH.token ? '<p class="hint" style="margin-top:16px">روی دستگاه مشترک؟ <button type="button" class="btn sm" data-act="lock">خروج از این دستگاه</button></p>' : '') + '</div>';
+      (GH.token ? '<fieldset><legend>خروج</legend><p class="hint" style="margin-top:0">اگر این دستگاه مال کس دیگری است، خارج شو. اطلاعاتت در گیت‌هاب می‌ماند و با رمز دوباره برمی‌گردد.</p><div class="acts" style="margin-top:8px"><button type="button" class="btn" data-act="lock">خروج از این دستگاه</button></div></fieldset>' : '') + '</div>';
     OVL.innerHTML = h; OVL.hidden = false;
     var first = OVL.querySelector('.chip:not([disabled]), .btn'); if (first) first.focus();
   }
-  function closeSettings() { OVL.hidden = true; OVL.innerHTML = ''; var b = document.querySelector('[data-act="settings"]'); if (b) b.focus(); }
+  function closeSettings() { applySkin(); OVL.hidden = true; OVL.innerHTML = ''; var b = document.querySelector('[data-act="settings"]'); if (b) b.focus(); }
   function saveSettings() {
-    var eng = Array.prototype.filter.call(OVL.querySelectorAll('.chip[aria-pressed="true"]'), function () { return true; }).map(function (b) { return +b.dataset.wd; });
+    var eng = Array.prototype.filter.call(OVL.querySelectorAll('.chip[data-wd][aria-pressed="true"]'), function () { return true; }).map(function (b) { return +b.dataset.wd; });
     var d = +$('#set-d', OVL).value, m = +$('#set-m', OVL).value, err = '';
     if (eng.length > 2) err = 'حداکثر دو روز کلاس زبان را انتخاب کن.';
     var maxD = m <= 6 ? 31 : 30;
@@ -1436,7 +1509,9 @@ var TZPLAN = (function () {
     if (!err && (jd < EXAM_MIN || jd > EXAM_MAX)) err = 'تاریخ آزمون باید بین ۱۵ اردیبهشت و ۳۱ تیر ۱۴۰۶ باشد.';
     if (err) { $('#set-err', OVL).textContent = err; return; }
     var examChanged = jKey(jd) !== S.settings.examJ;
-    var next = { eng: eng.sort(), examJ: jKey(jd), examSet: S.settings.examSet || examChanged };
+    var nm = ($('#set-name', OVL).value || '').trim().slice(0, 20) || 'مینا';
+    var sk = OVL.querySelector('.chip.skin[aria-pressed="true"]');
+    var next = { eng: eng.sort(), examJ: jKey(jd), examSet: S.settings.examSet || examChanged, name: nm, skin: sk ? sk.dataset.skin : S.settings.skin };
     next.t = now(); DOC.settings = next; touch();
     applySettings(next);
     closeSettings();
@@ -1445,7 +1520,7 @@ var TZPLAN = (function () {
   function applySettings(raw) {
     var n = normSettings(raw); if (raw && raw.t) n.t = raw.t;
     if (canon(n) === canon(S.settings) && S.plan) return;
-    S.settings = n; rebuild(); render();
+    S.settings = n; applySkin(); rebuild(); render();
   }
 
   /* ---------- render & inputs ---------- */
@@ -1492,9 +1567,17 @@ var TZPLAN = (function () {
     window.scrollTo({ top: 0 });
   }
   var toastTimer = null;
-  function toast(msg) {
-    var el = $('#toast'); el.textContent = fa(msg); el.classList.add('show');
-    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2600);
+  function toast(msg, by, ms) {
+    var el = $('#toast'); el.innerHTML = T(msg) + (by ? '<small>' + T(by) + '</small>' : ''); el.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.remove('show'); }, ms || 2600);
+  }
+
+  async function logout() {
+    if (GH.token) { clearTimeout(GH.timer); while (GH.busy) await sleep(200); await sync(); }
+    if (S.status !== 'ok' && S.status !== 'auth') { toast('هنوز همه‌چیز ذخیره نشده؛ وقتی اینترنت وصل شد دوباره امتحان کن'); return; }
+    LS.set('tok', null); LS.set('doc', null); GH.token = null; DOC = emptyDoc(); REV++;
+    S.settings = normSettings(null); applySkin(); rebuild();
+    closeSettings(); S.status = GH.cfg ? 'locked' : 'nocfg'; render(); toast('از این دستگاه خارج شدی');
   }
 
   /* ---------- events ---------- */
@@ -1509,7 +1592,7 @@ var TZPLAN = (function () {
     else if (act === 'settings') openSettings();
     else if (act === 'close-settings') closeSettings();
     else if (act === 'save-settings') saveSettings();
-    else if (act === 'lock') { LS.set('tok', null); GH.token = null; closeSettings(); setStatus(GH.cfg ? 'locked' : 'nocfg'); render(); toast('از این دستگاه خارج شدی'); }
+    else if (act === 'lock') logout();
     else if (act === 'del-mock') {
       if (el.dataset.confirm !== '1') { el.dataset.confirm = '1'; el.textContent = 'مطمئنی؟'; setTimeout(function () { if (el.isConnected) { el.dataset.confirm = ''; el.textContent = 'حذف'; } }, 3000); return; }
       deleteMock(el.dataset.mid);
@@ -1524,8 +1607,13 @@ var TZPLAN = (function () {
     var chip = e.target.closest('.chip[data-wd]');
     if (chip && OVL.contains(chip)) {
       var on = chip.getAttribute('aria-pressed') === 'true';
-      if (!on && OVL.querySelectorAll('.chip[aria-pressed="true"]').length >= 2) { $('#set-err', OVL).textContent = 'حداکثر دو روز کلاس زبان را انتخاب کن.'; return; }
+      if (!on && OVL.querySelectorAll('.chip[data-wd][aria-pressed="true"]').length >= 2) { $('#set-err', OVL).textContent = 'حداکثر دو روز کلاس زبان را انتخاب کن.'; return; }
       chip.setAttribute('aria-pressed', String(!on)); $('#set-err', OVL).textContent = ''; return;
+    }
+    var skc = e.target.closest('.chip.skin');
+    if (skc && OVL.contains(skc)) {
+      Array.prototype.forEach.call(OVL.querySelectorAll('.chip.skin'), function (b) { b.setAttribute('aria-pressed', String(b === skc)); });
+      document.documentElement.setAttribute('data-skin', skc.dataset.skin); return;
     }
     var go = e.target.closest('[data-go]');
     if (go) { S.cursor = +go.dataset.go; render(); return; }
@@ -1570,6 +1658,10 @@ var TZPLAN = (function () {
   S.view = VIEWS.indexOf(hv) >= 0 ? hv : (VIEWS.indexOf(LS.get('view', 'today')) >= 0 ? LS.get('view', 'today') : 'today');
   document.documentElement.lang = 'fa';
   if (DOC.settings) { S.settings = normSettings(DOC.settings); rebuild(); }
+  applySkin();
+  fetch('quotes.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (q) {
+    if (q && typeof q === 'object' && Array.isArray(q.start)) { QUOTES = q; render(); }
+  }).catch(function () { /* keep built-in quotes */ });
   render();
   startSync();
   setInterval(function () { var t = tehranToday(); if (t !== S.today) { S.today = t; render(); } }, 60000);
