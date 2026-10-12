@@ -301,6 +301,18 @@ html.in .login { display: none; }
 .lgcard .inp { width: 100%; margin-top: 4px; font-size: 16px; padding: 9px 12px; text-align: left; }
 .lgcard .err { min-height: 1.6em; margin-top: 8px; }
 .lgcard .btn { width: 100%; margin-top: 6px; padding: 10px; font-size: 16px; }
+.tour p:not(.eyebrow) { margin-top: 8px; }
+.tour h2 { font-family: var(--display); font-weight: 400; font-size: 28px; margin: 0 0 2px; }
+.tour .facts { margin: 8px 0 0; padding-inline-start: 18px; }
+.tour .facts li { margin-top: 6px; }
+.tdemo { margin-top: 10px; border: 1.5px dashed var(--drop-line); border-radius: 10px; padding: 4px 12px; background: var(--paper); }
+.tdots { display: flex; gap: 6px; justify-content: center; margin-top: 18px; }
+.tdots i { width: 7px; height: 7px; border-radius: 50%; background: var(--drop-line); }
+.tdots i.on { background: var(--drop); width: 20px; border-radius: 4px; }
+.tour .acts { margin-top: 12px; }
+.btn.link { border-color: transparent; background: none; color: var(--ink-2); margin-inline-start: auto; }
+.tourcta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 16px; }
+.tourcta h3 { margin: 0; }
 .toast { position: fixed; inset-inline: 0; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); margin-inline: auto; width: max-content; max-width: calc(100% - 32px);
   background: var(--ink); color: var(--paper); padding: 8px 16px; border-radius: 8px; font-size: 14px; opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; z-index: 40; }
 .toast.show { opacity: 1; transform: none; }
@@ -1255,12 +1267,12 @@ var TZPLAN = (function () {
     GH.token = new TextDecoder().decode(plain);
     LS.set('acct', GH.cfg); LS.set('tok', GH.token);
     DOC = emptyDoc(); saveLocal();
-    S.status = 'init'; showApp(true); render();
+    S.status = 'init'; showApp(true); render(); maybeTour();
     await sync();
   }
   function startSync() {
     var tok = LS.get('tok', null), acct = LS.get('acct', null);
-    if (tok && acct && acct.repo) { GH.token = tok; GH.cfg = acct; showApp(true); sync(); }
+    if (tok && acct && acct.repo) { GH.token = tok; GH.cfg = acct; showApp(true); sync(); setTimeout(maybeTour, 300); }
     else { GH.token = null; showApp(false); var f = $('#lg-user'); if (f && !f.value) f.focus(); }
   }
   function reportHtml() { return ''; }
@@ -1494,7 +1506,8 @@ var TZPLAN = (function () {
     ['مدرسه', ['تکلیف‌های مدرسه جدا از این برنامه است. اگر تکلیف، همان درسِ جلسهٔ امروز است، می‌توانی آن را جزو همان جلسه حساب کنی.', 'اگر مدرسه از برنامه عقب‌تر است، درس جدید را با ویدیوی آموزشی پیش‌خوانی کن. اگر جلوتر است، ترتیب برنامه را ادامه بده.']]
   ];
   function renderRules() {
-    var h = '<div class="rules">' + RULES.map(function (r) {
+    var h = '<section class="card tourcta"><div><h3>راهنمای برنامه</h3><p class="muted">یه معرفی کوتاه از اینکه برنامه چطوری کار می‌کنه.</p></div><button type="button" class="btn primary" data-act="tour">دیدن راهنما</button></section>';
+    h += '<div class="rules">' + RULES.map(function (r) {
       return '<section class="card"><h3>' + T(r[0]) + '</h3><ul>' + r[1].map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') + '</ul></section>';
     }).join('') + '</div>';
     h += '<section class="sec"><h2>راهنمای پشتیبان</h2><div class="grid2" style="margin-top:0">' +
@@ -1557,6 +1570,41 @@ var TZPLAN = (function () {
     if (canon(n) === canon(S.settings) && S.plan) return;
     S.settings = n; applySkin(); rebuild(); render();
   }
+
+  /* ---------- first-run tour ---------- */
+  var TOUR = [
+    { h: 'سلام {name}!', p: ['این برنامه تا روز آزمون، هر روز بهت می‌گه چی بخونی و چقدر.', 'کار تو ساده‌ست: هر روز بیا سراغ تب «امروز» و کارهاش رو انجام بده. بقیه‌اش با برنامه.'] },
+    { h: 'تیک زدن', demo: true, p: ['هر کاری رو تموم کردی، روی خودش بزن تا تیک بخوره. اشتباهی زدی؟ دوباره بزن تا برگرده.', 'همین‌جا امتحانش کن:'], p2: ['با «روز قبل» و «روز بعد» می‌تونی روزهای دیگه رو هم ببینی.'] },
+    { h: 'آزمون‌ها', p: ['هر آزمون تمرینی که دادی، تعداد درست و غلط هر درس رو توی تب «آزمون‌ها» وارد کن.', 'برنامه نمره رو مثل آزمون اصلی حساب می‌کنه (درست ۳+، غلط ۱−) و نمودار پیشرفتت رو می‌کشه.'] },
+    { h: 'چند تا قرار', list: ['عقب افتادی؟ کارها رو روی روزهای بعد تلنبار نکن. پنجشنبه برای جبرانه.', 'نقطهٔ سبز بالای صفحه یعنی همه‌چیز ذخیره شده. زرد یعنی اینترنت قطعه؛ چیزی از دست نمی‌ره.', 'رنگ‌ها و اسمت توی «تنظیمات»ه.', 'قانون‌های کامل توی تب «قرارها»ست. این راهنما هم همون‌جا دوباره باز می‌شه.'] }
+  ];
+  var tourStep = 0, tourDemo = false;
+  function tourHtml() {
+    var st = TOUR[tourStep], last = tourStep === TOUR.length - 1, h = '';
+    h += '<div class="dlg tour" role="dialog" aria-modal="true" aria-labelledby="tour-h"><p class="eyebrow">' + T('راهنما · ' + (tourStep + 1) + ' از ' + TOUR.length) + '</p>';
+    h += '<h2 id="tour-h">' + T(qText(st.h)) + '</h2>';
+    if (st.p) h += st.p.filter(function (x) { return x; }).map(function (x) { return '<p>' + T(qText(x)) + '</p>'; }).join('');
+    if (st.demo) h += '<div class="tdemo"><button type="button" class="row" role="checkbox" aria-checked="' + tourDemo + '" data-act="tour-demo"><span class="bub" aria-hidden="true"><i>۱</i></span>' +
+      '<span class="tx"><span class="meta"><b class="c-riazi">ریاضی</b><span>۴۵ دقیقه</span></span><span class="tt">نمونه: تمرین‌های فصل اول</span></span></button></div>';
+    if (st.p2) h += st.p2.map(function (x) { return '<p>' + T(qText(x)) + '</p>'; }).join('');
+    if (st.list) h += '<ul class="facts">' + st.list.map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') + '</ul>';
+    h += '<div class="tdots" aria-hidden="true">' + TOUR.map(function (x, i) { return '<i' + (i === tourStep ? ' class="on"' : '') + '></i>'; }).join('') + '</div>';
+    h += '<div class="acts">' + '<button type="button" class="btn primary" data-act="tour-next">' + (last ? 'شروع کنیم!' : 'بعدی') + '</button>' +
+      (tourStep ? '<button type="button" class="btn" data-act="tour-prev">قبلی</button>' : '') +
+      (last ? '' : '<button type="button" class="btn link" data-act="tour-close">رد کردن</button>') + '</div></div>';
+    return h;
+  }
+  function openTour() {
+    tourStep = 0; tourDemo = false; LS.set('tourSeen', 1);
+    OVL.innerHTML = tourHtml(); OVL.hidden = false;
+    var b = OVL.querySelector('[data-act="tour-next"]'); if (b) b.focus();
+  }
+  function tourGo(d) {
+    tourStep = Math.max(0, Math.min(TOUR.length - 1, tourStep + d));
+    OVL.innerHTML = tourHtml();
+    var b = OVL.querySelector('[data-act="tour-next"]'); if (b) b.focus();
+  }
+  function maybeTour() { if (GH.token && !LS.get('tourSeen', 0) && OVL.hidden) openTour(); }
 
   /* ---------- render & inputs ---------- */
   function capture() {
@@ -1628,6 +1676,11 @@ var TZPLAN = (function () {
     else if (act === 'close-settings') closeSettings();
     else if (act === 'save-settings') saveSettings();
     else if (act === 'lock') logout();
+    else if (act === 'tour') openTour();
+    else if (act === 'tour-next') { if (tourStep === TOUR.length - 1) { closeSettings(); toast('موفق باشی، ' + S.settings.name + '!'); } else tourGo(1); }
+    else if (act === 'tour-prev') tourGo(-1);
+    else if (act === 'tour-close') closeSettings();
+    else if (act === 'tour-demo') { tourDemo = !tourDemo; el.setAttribute('aria-checked', String(tourDemo)); if (tourDemo) toast('آفرین! همین‌طوری.'); }
     else if (act === 'del-mock') {
       if (el.dataset.confirm !== '1') { el.dataset.confirm = '1'; el.textContent = 'مطمئنی؟'; setTimeout(function () { if (el.isConnected) { el.dataset.confirm = ''; el.textContent = 'حذف'; } }, 3000); return; }
       deleteMock(el.dataset.mid);
