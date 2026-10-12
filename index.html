@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#b0284f">
 <meta name="robots" content="noindex">
 <title>برنامهٔ تیزهوشان ۱۴۰۶</title>
+<script>try { var t = localStorage.getItem('tz6.tok'), a = localStorage.getItem('tz6.acct'); if (t && t !== 'null' && a && a !== 'null') document.documentElement.classList.add('in'); } catch (e) {}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@300..800&display=swap">
@@ -289,6 +290,17 @@ p { margin: 0; }
 .sw-hero { background: linear-gradient(135deg, #c4262e 55%, #1f3f8f 55%); }
 .sw-night { background: linear-gradient(135deg, #6a3fc2 55%, #d6458f 55%); }
 .sw-sheet { background: linear-gradient(135deg, #c22e5a 55%, #fbedf1 55%); }
+/* login gate: until signed in, only the login card exists on screen */
+html:not(.in) .app { display: none; }
+html.in .login { display: none; }
+.login { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px; }
+.lgcard { width: min(100%, 360px); background: var(--sheet); border: 1px solid var(--drop-line); border-top: 4px solid var(--drop); border-radius: 14px; padding: 22px 22px 24px; display: flex; flex-direction: column; }
+.lgcard h1 { font-family: var(--display); font-weight: 400; font-size: 36px; line-height: 1.2; margin: 0 0 14px; }
+.lgbrand { font-size: 13px; color: var(--drop); font-weight: 600; }
+.lgcard label { font-weight: 600; font-size: 14px; margin-top: 10px; }
+.lgcard .inp { width: 100%; margin-top: 4px; font-size: 16px; padding: 9px 12px; text-align: left; }
+.lgcard .err { min-height: 1.6em; margin-top: 8px; }
+.lgcard .btn { width: 100%; margin-top: 6px; padding: 10px; font-size: 16px; }
 .toast { position: fixed; inset-inline: 0; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); margin-inline: auto; width: max-content; max-width: calc(100% - 32px);
   background: var(--ink); color: var(--paper); padding: 8px 16px; border-radius: 8px; font-size: 14px; opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; z-index: 40; }
 .toast.show { opacity: 1; transform: none; }
@@ -298,6 +310,18 @@ p { margin: 0; }
 </head>
 <body>
 
+<div class="login" id="login" dir="rtl" lang="fa">
+  <form id="lg-form" class="lgcard" novalidate>
+    <p class="lgbrand">برنامهٔ تیزهوشان</p>
+    <h1>ورود</h1>
+    <label for="lg-user">نام کاربری</label>
+    <input id="lg-user" name="username" class="inp" dir="ltr" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <label for="lg-pw">رمز</label>
+    <input id="lg-pw" name="password" class="inp" dir="ltr" type="password" autocomplete="current-password">
+    <p class="err" id="lg-err" role="alert"></p>
+    <button type="submit" class="btn primary">ورود</button>
+  </form>
+</div>
 <div class="app" id="app" dir="rtl" lang="fa">
   <header class="top">
     <div>
@@ -844,7 +868,8 @@ var TZPLAN = (function () {
   /* ---------- per-device storage ---------- */
   var LS = {
     get: function (k, d) { try { var v = localStorage.getItem('tz6.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set: function (k, v) { try { localStorage.setItem('tz6.' + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
+    set: function (k, v) { try { localStorage.setItem('tz6.' + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } },
+    del: function (k) { try { localStorage.removeItem('tz6.' + k); } catch (e) { /* storage unavailable */ } }
   };
 
   /* ---------- dates ---------- */
@@ -1143,7 +1168,7 @@ var TZPLAN = (function () {
 
   /* ---------- GitHub sync ---------- */
   var GH = { cfg: null, token: null, timer: null, busy: false, again: false };
-  function setStatus(st) { if (S.status !== st) { var lk = S.status === 'locked' || st === 'locked'; S.status = st; if (lk) render(); else renderHeader(); } }
+  function setStatus(st) { if (S.status !== st) { S.status = st; renderHeader(); } }
   function ghUrl() { return 'https://api.github.com/repos/' + GH.cfg.owner + '/' + GH.cfg.repo + '/contents/' + GH.cfg.path; }
   function ghHeaders() { return { 'Authorization': 'Bearer ' + GH.token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }; }
   async function ghGet() {
@@ -1204,29 +1229,39 @@ var TZPLAN = (function () {
     return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
   }
   function unb64(s) { var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
-  async function unlock(pw) {
-    var c = GH.cfg;
-    var key = await deriveKey(pw, unb64(c.salt), c.iter);
-    var plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(c.iv) }, key, unb64(c.ct));
+  /* ---------- login ---------- */
+  var LOGIN = $('#login');
+  function signedIn() { return !!GH.token; }
+  function showApp(on) { document.documentElement.classList.toggle('in', on); }
+  async function loadConfig() {
+    var r = await fetch('config.json', { cache: 'no-store' });
+    if (!r.ok) throw { net: true };
+    var c = await r.json();
+    if (c && c.ct && !c.users) c = { owner: c.owner, users: { mina: c } };
+    if (!c || !c.users) throw { net: true };
+    return c;
+  }
+  async function login(user, pw) {
+    var all;
+    try { all = await loadConfig(); } catch (e) { throw { net: true }; }
+    var u = all.users[user.toLowerCase()];
+    if (!u || !u.ct) throw { bad: true };
+    var plain;
+    try {
+      var key = await deriveKey(pw, unb64(u.salt), u.iter || 310000);
+      plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(u.iv) }, key, unb64(u.ct));
+    } catch (e) { throw { bad: true }; }
+    GH.cfg = { owner: u.owner || all.owner, repo: u.repo, path: u.path || 'data.json', user: user.toLowerCase() };
     GH.token = new TextDecoder().decode(plain);
-    LS.set('tok', GH.token);
+    LS.set('acct', GH.cfg); LS.set('tok', GH.token);
+    DOC = emptyDoc(); saveLocal();
+    S.status = 'init'; showApp(true); render();
     await sync();
   }
-  async function startSync() {
-    try {
-      var r = await fetch('config.json', { cache: 'no-store' });
-      if (!r.ok) throw 0;
-      GH.cfg = await r.json();
-      if (!GH.cfg || !GH.cfg.ct) throw 0;
-    } catch (e) { GH.cfg = null; setStatus('nocfg'); render(); return; }
-    var tok = LS.get('tok', null);
-    if (tok) { GH.token = tok; sync(); } else { setStatus('locked'); render(); }
-  }
-  function lockHtml() {
-    if (S.status !== 'locked') return '';
-    return '<section class="card lock"><h3>ورود</h3><p class="muted">رمز برنامه را وارد کن تا تیک‌ها و نمره‌ها در گیت‌هاب ذخیره شوند. فقط یک بار روی هر دستگاه لازم است.</p>' +
-      '<form id="lockform" class="frow" novalidate><label>رمز<input id="lock-pw" class="inp" type="password" autocomplete="current-password" style="width:min(100%,240px)"></label>' +
-      '<button type="submit" class="btn primary">ورود</button></form><p class="err" id="lock-err" role="alert"></p></section>';
+  function startSync() {
+    var tok = LS.get('tok', null), acct = LS.get('acct', null);
+    if (tok && acct && acct.repo) { GH.token = tok; GH.cfg = acct; showApp(true); sync(); }
+    else { GH.token = null; showApp(false); var f = $('#lg-user'); if (f && !f.value) f.focus(); }
   }
   function reportHtml() { return ''; }
 
@@ -1549,7 +1584,6 @@ var TZPLAN = (function () {
     else if (S.view === 'mocks') renderMocks();
     else if (S.view === 'books') renderBooks();
     else renderRules();
-    if (S.status === 'locked') VIEW.insertAdjacentHTML('afterbegin', lockHtml());
     restore(keep, same);
     lastView = S.view;
     if (S.view === 'mocks') updatePreview();
@@ -1575,9 +1609,10 @@ var TZPLAN = (function () {
   async function logout() {
     if (GH.token) { clearTimeout(GH.timer); while (GH.busy) await sleep(200); await sync(); }
     if (S.status !== 'ok' && S.status !== 'auth') { toast('هنوز همه‌چیز ذخیره نشده؛ وقتی اینترنت وصل شد دوباره امتحان کن'); return; }
-    LS.set('tok', null); LS.set('doc', null); GH.token = null; DOC = emptyDoc(); REV++;
+    LS.del('tok'); LS.del('acct'); LS.del('doc'); GH.token = null; GH.cfg = null; DOC = emptyDoc(); REV++;
     S.settings = normSettings(null); applySkin(); rebuild();
-    closeSettings(); S.status = GH.cfg ? 'locked' : 'nocfg'; render(); toast('از این دستگاه خارج شدی');
+    closeSettings(); S.status = 'init'; S.cursor = null; render();
+    $('#lg-pw').value = ''; $('#lg-err').textContent = ''; showApp(false); window.scrollTo({ top: 0 }); $('#lg-user').focus();
   }
 
   /* ---------- events ---------- */
@@ -1632,14 +1667,6 @@ var TZPLAN = (function () {
   });
   VIEW.addEventListener('input', function (e) { if (e.target.closest('#mform')) updatePreview(); });
   VIEW.addEventListener('submit', function (e) {
-    if (e.target.id === 'lockform') {
-      e.preventDefault();
-      var pw = $('#lock-pw').value, le = $('#lock-err');
-      if (!pw) { le.textContent = 'رمز را وارد کن.'; return; }
-      le.textContent = 'در حال بررسی…';
-      unlock(pw).then(function () { toast('وارد شدی'); }, function () { le.textContent = 'رمز درست نیست.'; });
-      return;
-    }
     if (e.target.id !== 'mform') return;
     e.preventDefault();
     var r = readForm(), errEl = $('#m-err');
@@ -1650,6 +1677,17 @@ var TZPLAN = (function () {
     e.target.reset();
     var jj = P.d2j(S.today); $('#m-d').value = jj.jd; $('#m-m').value = jj.jm; $('#m-y').value = jj.jy;
     toast('آزمون ذخیره شد'); render();
+  });
+
+  $('#lg-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var u = $('#lg-user').value.trim(), pw = $('#lg-pw').value, er = $('#lg-err'), btn = $('#lg-form button');
+    if (!u || !pw) { er.textContent = 'نام کاربری و رمز را وارد کن.'; return; }
+    er.textContent = ''; btn.disabled = true; btn.textContent = 'در حال ورود…';
+    login(u, pw).then(function () { toast('خوش اومدی، ' + S.settings.name + '!'); }, function (err) {
+      er.textContent = err && err.net ? 'اتصال به اینترنت برقرار نشد. دوباره امتحان کن.' : 'نام کاربری یا رمز درست نیست.';
+      $('#lg-pw').select();
+    }).then(function () { btn.disabled = false; btn.textContent = 'ورود'; });
   });
 
   /* ---------- start ---------- */

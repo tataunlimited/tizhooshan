@@ -32,6 +32,8 @@ button.sec { background: transparent; color: var(--acc); border: 1.5px solid var
   <form class="card" id="f" novalidate>
     <label>صاحب مخزن داده (نام کاربری گیت‌هاب)<input id="owner" dir="ltr" autocomplete="off"></label>
     <label>نام مخزن داده<input id="repo" dir="ltr" value="tizhooshan-data" autocomplete="off"></label>
+    <label>نام کاربری (انگلیسی، مثلاً mina)<input id="user" dir="ltr" autocomplete="off" autocapitalize="off"></label>
+    <label>اسم فایل داده<input id="path" dir="ltr" value="data.json" autocomplete="off"></label>
     <label>توکن (Fine-grained token)<input id="tok" dir="ltr" type="password" autocomplete="off" placeholder="github_pat_..."></label>
     <label>رمز برنامه (حداقل ۸ حرف)<input id="pw" type="password" autocomplete="new-password"></label>
     <label>تکرار رمز<input id="pw2" type="password" autocomplete="new-password"></label>
@@ -55,7 +57,9 @@ button.sec { background: transparent; color: var(--acc); border: 1.5px solid var
   $('f').addEventListener('submit', async function (e) {
     e.preventDefault();
     var owner = $('owner').value.trim(), repo = $('repo').value.trim(), tok = $('tok').value.trim(), pw = $('pw').value;
-    if (!owner || !repo || !tok) return say('همهٔ خانه‌ها را پر کنید.', 'bad');
+    var user = $('user').value.trim().toLowerCase(), path = $('path').value.trim() || 'data.json';
+    if (!owner || !repo || !tok || !user) return say('همهٔ خانه‌ها را پر کنید.', 'bad');
+    if (!/^[a-z0-9._-]{2,30}$/.test(user)) return say('نام کاربری فقط حروف انگلیسی و عدد باشد.', 'bad');
     if (pw.length < 8) return say('رمز باید حداقل ۸ حرف باشد.', 'bad');
     if (pw !== $('pw2').value) return say('رمز و تکرارش یکی نیستند.', 'bad');
     say('در حال بررسی توکن…');
@@ -72,7 +76,8 @@ button.sec { background: transparent; color: var(--acc); border: 1.5px solid var
     var base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
     var key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
     var ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(tok)));
-    var cfg = { owner: owner, repo: repo, path: 'data.json', iter: iter, salt: b64(salt), iv: b64(iv), ct: b64(ct) };
+    var cfg = { owner: owner, users: {} };
+    cfg.users[user] = { repo: repo, path: path, iter: iter, salt: b64(salt), iv: b64(iv), ct: b64(ct) };
     $('out').value = JSON.stringify(cfg, null, 2);
     $('outbox').hidden = false; $('tok').value = ''; $('pw').value = ''; $('pw2').value = '';
     say('توکن درست کار می‌کند.', 'ok');

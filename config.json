@@ -1,9 +1,13 @@
 {
   "owner": "tataunlimited",
-  "repo": "tizhooshan-data",
-  "path": "data.json",
-  "iter": 310000,
-  "salt": "DGyCpiBv8NPy/zor65RIIQ==",
-  "iv": "RRV6FJJnCcCNTjjT",
-  "ct": "Xzrcm+XhHpMA6VeXLig4FcKIGvTp+MPBVvJ30mxAhAiAfeziCETXeuLwWaMONwN6an6OnS7bJV8Srw7XRxYmtG3Nqx1ZPRgNKzojVCt/IdFk38GwS+wnpG/Dzrww+oCYro730WBQ7pObapo1Gw=="
+  "users": {
+    "mina": {
+      "repo": "tizhooshan-data",
+      "path": "data.json",
+      "iter": 310000,
+      "salt": "DGyCpiBv8NPy/zor65RIIQ==",
+      "iv": "RRV6FJJnCcCNTjjT",
+      "ct": "Xzrcm+XhHpMA6VeXLig4FcKIGvTp+MPBVvJ30mxAhAiAfeziCETXeuLwWaMONwN6an6OnS7bJV8Srw7XRxYmtG3Nqx1ZPRgNKzojVCt/IdFk38GwS+wnpG/Dzrww+oCYro730WBQ7pObapo1Gw=="
+    }
+  }
 }
