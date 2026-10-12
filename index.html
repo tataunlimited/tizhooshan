@@ -1154,6 +1154,7 @@ var TZPLAN = (function () {
       });
       if (d.settings && typeof d.settings === 'object' && (!out.settings || (+d.settings.t || 0) > (+out.settings.t || 0))) out.settings = d.settings;
       if ((+d.updated || 0) > out.updated) out.updated = +d.updated;
+      if (d.epoch && !out.epoch) out.epoch = String(d.epoch);
     });
     return out;
   }
@@ -1204,6 +1205,16 @@ var TZPLAN = (function () {
     if (!GH.token) return;
     clearTimeout(GH.timer); GH.timer = setTimeout(sync, ms);
   }
+  async function wantEpoch() {
+    if (GH.want && now() - GH.wantAt < 300000) return GH.want.v;
+    try {
+      var r = await fetch('config.json', { cache: 'no-store' });
+      if (!r.ok) return GH.want ? GH.want.v : null;
+      var c = await r.json(), u = c && c.users && c.users[GH.cfg.user || 'mina'];
+      GH.want = { v: u && u.epoch ? String(u.epoch) : null }; GH.wantAt = now();
+      return GH.want.v;
+    } catch (e) { return GH.want ? GH.want.v : null; }
+  }
   async function sync() {
     if (!GH.token || !GH.cfg) return;
     if (GH.busy) { GH.again = true; return; }
@@ -1211,8 +1222,19 @@ var TZPLAN = (function () {
     var rev0 = REV, failed = false, before = canon(DOC);
     if (S.status !== 'ok') setStatus('saving');
     try {
+      var want = await wantEpoch();
       for (var attempt = 0; attempt < 4; attempt++) {
         var remote = await ghGet();
+        if (want && (!remote.doc || remote.doc.epoch !== want)) {
+          // the supporter asked for a fresh start: replace the file, keeping only work done after the reset
+          var fresh = DOC.epoch === want ? mergeDocs(DOC, null) : emptyDoc();
+          fresh.epoch = want; fresh.updated = now();
+          setStatus('saving');
+          var rr = await ghPut(fresh, remote.sha);
+          if (rr.conflict) { await sleep(400 + Math.random() * 600); continue; }
+          DOC = fresh; break;
+        }
+        if (remote.doc && remote.doc.epoch && remote.doc.epoch !== DOC.epoch) DOC = mergeDocs(remote.doc, null);
         var merged = mergeDocs(remote.doc, DOC);
         var same = remote.doc && canon(merged) === canon(mergeDocs(remote.doc, null));
         if (same) { DOC = mergeDocs(merged, DOC); break; }
@@ -1224,13 +1246,13 @@ var TZPLAN = (function () {
       }
       saveLocal();
       setStatus('ok');
-      if (canon(DOC) !== before) { if (DOC.settings) applySettings(DOC.settings); render(); }
+      if (canon(DOC) !== before) { applySettings(DOC.settings); render(); }
     } catch (e) {
       failed = true;
       setStatus(e && e.auth ? 'auth' : 'offline');
     } finally {
       GH.busy = false;
-      if (DOC.settings) applySettings(DOC.settings);
+      applySettings(DOC.settings);
       render();
       if (GH.again || REV !== rev0) { GH.again = false; schedule(800); }
       else if (failed && S.status === 'offline') schedule(30000);
@@ -1657,7 +1679,7 @@ var TZPLAN = (function () {
   async function logout() {
     if (GH.token) { clearTimeout(GH.timer); while (GH.busy) await sleep(200); await sync(); }
     if (S.status !== 'ok' && S.status !== 'auth') { toast('هنوز همه‌چیز ذخیره نشده؛ وقتی اینترنت وصل شد دوباره امتحان کن'); return; }
-    LS.del('tok'); LS.del('acct'); LS.del('doc'); GH.token = null; GH.cfg = null; DOC = emptyDoc(); REV++;
+    LS.del('tok'); LS.del('acct'); LS.del('doc'); GH.token = null; GH.cfg = null; GH.want = null; DOC = emptyDoc(); REV++;
     S.settings = normSettings(null); applySkin(); rebuild();
     closeSettings(); S.status = 'init'; S.cursor = null; render();
     $('#lg-pw').value = ''; $('#lg-err').textContent = ''; showApp(false); window.scrollTo({ top: 0 }); $('#lg-user').focus();
