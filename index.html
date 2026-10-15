@@ -433,6 +433,9 @@ var TZPLAN = (function () {
     hooshK: { l: 'هوش', c: 'hoosh', st: 'hoosh' },
     riazi: { l: 'ریاضی', c: 'riazi' },
     riaziL: { l: 'ریاضی', c: 'riazi', st: 'riazi' },
+    kelas: { l: 'کلاس ریاضی', c: 'riazi', st: 'riazi' },
+    kelasT: { l: 'ریاضی', c: 'riazi', st: 'riazi' },
+    hooshR: { l: 'هوش', c: 'hoosh', st: 'hoosh' },
     olum: { l: 'علوم', c: 'olum' },
     farsi: { l: 'فارسی', c: 'farsi' },
     motaleat: { l: 'مطالعات', c: 'motaleat' },
@@ -485,6 +488,7 @@ var TZPLAN = (function () {
       L1: [['hoosh', 30], ['olum', 30], ['farsi', 25]],
       L2: [['hoosh', 30], ['riaziL', 30], ['farsi', 25]],
       T: [['riazi', 50], ['hoosh', 45], ['olum', 30], ['motaleat', 25], ['payam', 20]],
+      M: [['hooshR', 20]],
       F: [['mrur', 40], ['tamas', 10]]
     },
     p2: { D: [['madrese', 0], ['hoosh', 20]], F: [['madrese', 0], ['tamas', 10]] },
@@ -492,6 +496,7 @@ var TZPLAN = (function () {
       N: [['hoosh', 30], ['riazi', 40]],
       L: [['hoosh', 30], ['olum', 30]],
       T: [['hoosh', 30], ['riazi', 40], ['olum', 30]],
+      M: [['hooshR', 20]],
       F: [['tamas', 10]]
     },
     p3: {
@@ -502,6 +507,7 @@ var TZPLAN = (function () {
       L1: [['hoosh', 35], ['olum', 40], ['farsi', 25]],
       L2: [['hoosh', 35], ['riaziL', 35], ['motaleat', 25]],
       T: [['riazi', 50], ['hoosh', 50], ['olum', 45], ['farsi', 30], ['payam', 25]],
+      M: [['hooshR', 20]],
       Fe: [['hooshK', 60], ['tamas', 10]],
       Fo: [['mrur', 45], ['tamas', 10]]
     },
@@ -513,10 +519,11 @@ var TZPLAN = (function () {
       L1: [['hoosh', 35], ['olum', 40], ['farsi', 25]],
       L2: [['hoosh', 35], ['riaziL', 35], ['payam', 25]],
       T: [['riazi', 50], ['hoosh', 50], ['olum', 45], ['farsi', 30], ['arabi', 25]],
+      M: [['hooshR', 20]],
       F: [['azmoon', 125], ['tahlil', 60], ['tamas', 10]]
     },
     p6: { D: [['madrese', 0], ['hoosh', 25]], F: [['mrur', 30], ['tamas', 10]] },
-    p6m: { D: [['hoosh', 40], ['riazi', 40], ['olum', 30]], F: [['mrur', 30]] }
+    p6m: { D: [['hoosh', 40], ['riazi', 40], ['olum', 30]], M: [['hooshR', 20]], F: [['mrur', 30]] }
   };
 
   /* ---------- queues: q = ordered items, d = what fills the rest ---------- */
@@ -724,6 +731,7 @@ var TZPLAN = (function () {
     mrur: ['دفتر اشتباهات'],
     madrese: ['درس‌های مدرسه'],
     hoosh: ['هوش: 20 سؤال'],
+    hooshR: ['هوش سرعتی: 10 سؤال از تیپ‌هایی که این هفته خواندی، در 10 دقیقه'],
     karha: ['کار']
   };
 
@@ -796,14 +804,19 @@ var TZPLAN = (function () {
     if (k === 'N') return tpl['N' + (((i - 1) % 4) + 1)] || tpl.N || tpl.D;
     if (k === 'L') return tpl['L' + (((i - 1) % 2) + 1)] || tpl.L || tpl.D;
     if (k === 'T') return tpl.T || tpl.D;
+    if (k === 'M') return tpl.M || tpl.D;
     return tpl.F || tpl.D;
   }
 
   function build(settings) {
     var eng = ((settings && settings.eng) || [0, 4]).filter(function (x, i, a) { return x >= 0 && x <= 5 && a.indexOf(x) === i; }).slice(0, 2);
+    var math = ((settings && settings.math) || []).filter(function (x, i, a) { return x >= 0 && x <= 5 && a.indexOf(x) === i; }).slice(0, 2);
     var exam = (settings && settings.exam) || DEFAULT_EXAM;
     var end = Math.max(W1 + WEEKS * 7 - 1, exam);
-    var roles = rolesForWeek(eng);
+    /* A math-class day keeps only a short task. The subjects it would have had (other than
+       math and hoosh) move to the next day, whose hoosh session makes room for the class homework. */
+    var base = rolesForWeek(eng);
+    var roles = base.map(function (r, wd) { return math.indexOf(wd) >= 0 ? 'M' : r; });
     var counters = {}, days = [], byId = {};
     for (var d = START; d <= end; d++) {
       var wd = weekday(d);
@@ -835,6 +848,18 @@ var TZPLAN = (function () {
         slots = pick(TPL[tplKey], day.role, week);
         var rk = day.role.charAt(0);
         if (rk === 'L') day.notes.push(ROLE_NOTE.L);
+        if (rk === 'M') {
+          day.notes.push(eng.indexOf(wd) >= 0 ? 'امروز مدرسه، کلاس زبان و کلاس ریاضی داری؛ برای همین فقط یک کار کوتاه هست. بقیهٔ وقت استراحت کن' : 'روز کلاس ریاضی؛ برنامهٔ امروز سبک است');
+          day.tasks.push({ id: 'k:' + (d - START), s: 'kelas', m: 90, t: 'کلاس ریاضی: فعال باش، هر چی رو نفهمیدی همون‌جا بپرس و جزوه‌ات رو مرتب بنویس' });
+        }
+        var prev = (wd + 6) % 7;
+        if (rk !== 'M' && prev !== 6 && math.indexOf(prev) >= 0) {
+          var SKIP = ['hoosh', 'hooshK', 'hooshR', 'riazi', 'riaziL', 'madrese', 'tamas', 'mrur', 'azmoon', 'tahlil'];
+          var carry = pick(TPL[tplKey], base[prev], week).filter(function (x) { return SKIP.indexOf(x[0]) < 0; });
+          var ri = -1; slots.forEach(function (x, i) { if (ri < 0 && x[0] === 'hoosh') ri = i; });
+          slots = slots.filter(function (x, i) { return i !== ri; }).concat(carry);
+          day.tasks.push({ id: 'kt:' + (d - START), s: 'kelasT', m: 30, t: 'تکلیف و تمرین‌های کلاس ریاضی دیروز؛ سؤالی که حل نشد را برای جلسهٔ بعد علامت بزن' });
+        }
         if ((ph.key === 'p1' || ph.key === 'p3' || ph.key === 'p5') && rk === 'T' && week !== 13) day.notes.push(ROLE_NOTE.T);
         if (rk === 'F' && ph.key !== 'p5') day.notes.push(ROLE_NOTE.F);
         if (rk === 'F' && ph.key === 'p5') day.notes.push('آزمون را ساعت 8 صبح شروع کن: اول دفترچهٔ تحصیلی (75 دقیقه)، بعد تحلیلی (50 دقیقه)');
@@ -852,7 +877,7 @@ var TZPLAN = (function () {
       });
     }
     days.forEach(function (dy) { dy.tasks.forEach(function (t) { byId[t.id] = dy.jdn; }); });
-    return { days: days, start: START, end: end, w1: W1, exam: exam, eng: eng, byId: byId, counters: counters };
+    return { days: days, start: START, end: end, w1: W1, exam: exam, eng: eng, math: math, byId: byId, counters: counters };
   }
 
   return {
@@ -925,7 +950,8 @@ var TZPLAN = (function () {
 
   /* ---------- state ---------- */
   function normSettings(s) {
-    var out = { eng: [0, 4], examJ: '1406-03-28', examSet: false, name: 'مینا', skin: 'sea' };
+    var out = { eng: [0, 4], math: [4], examJ: '1406-03-28', examSet: false, name: 'مینا', skin: 'sea' };
+    if (s && Array.isArray(s.math)) out.math = s.math.map(Number).filter(function (x, i, a) { return x === Math.floor(x) && x >= 0 && x <= 5 && a.indexOf(x) === i; }).slice(0, 2);
     if (s && typeof s.name === 'string' && s.name.trim()) out.name = s.name.trim().slice(0, 20);
     if (s && SKINS.some(function (k) { return k[0] === s.skin; })) out.skin = s.skin;
     if (s && Array.isArray(s.eng)) out.eng = s.eng.map(Number).filter(function (x, i, a) { return x === Math.floor(x) && x >= 0 && x <= 5 && a.indexOf(x) === i; }).slice(0, 2);
@@ -939,7 +965,7 @@ var TZPLAN = (function () {
     view: 'today', cursor: null, week: null, plan: null, dayMap: null, lastFocus: null
   };
   function rebuild() {
-    S.plan = P.build({ eng: S.settings.eng, exam: parseJKey(S.settings.examJ) });
+    S.plan = P.build({ eng: S.settings.eng, math: S.settings.math, exam: parseJKey(S.settings.examJ) });
     S.dayMap = new Map();
     S.plan.days.forEach(function (d) { S.dayMap.set(d.jdn, d); });
   }
@@ -1126,7 +1152,7 @@ var TZPLAN = (function () {
       if (dy.after) body = '<p class="rest">—</p>';
       else if (dy.rest) body = '<p class="rest">' + T(dy.rest) + '</p>';
       else body = '<div class="rows">' + dy.tasks.map(function (t, i) { return rowHtml(t, i, true); }).join('') + '</div>';
-      var cls = dy.role && dy.role.charAt(0) === 'L' && !dy.rest && dy.phase !== 'p4' ? '<p class="tag">کلاس زبان</p>' : '';
+      var cls = dy.role && !dy.rest && dy.phase !== 'p4' && S.settings.eng.indexOf(dy.wd) >= 0 ? '<p class="tag">کلاس زبان</p>' : '';
       return '<section class="wday' + (dy.jdn === S.today ? ' today' : '') + '"><h3><span>' + T(wdName(dy.jdn) + ' ' + dLabel(dy.jdn)) + '</span><span class="muted">' +
         (st.n ? T(st.d + '/' + st.n) : '') + '</span></h3>' + body + cls + '</section>';
     }).join('') + '</div>';
@@ -1483,7 +1509,8 @@ var TZPLAN = (function () {
     ] },
     { h: 'ریاضی', n: '۱۳٪ نمره و پایهٔ سؤال‌های عددی هوش', items: [
       ['اولویت ۱ · همین حالا', 'ریاضی نهم تیزهوشان', 'خیلی سبز', 'درسنامه و حدود ۱۸۰۰ تست در دو جلد. جایگزین: «ریاضی نهم» سری IQ گاج.'],
-      ['پیشنهادی', 'معلم خصوصی ریاضی', 'هفته‌ای یک جلسه', 'تا آخر بهمن. برای ریاضی ضعیف بیشترین اثر را دارد؛ معلم همان فصلی را کار کند که در برنامهٔ آن هفته است.'],
+      ['دارید', 'کلاس ریاضی', 'چهارشنبه‌ها', 'در برنامه آمده: روز کلاس سبک است و فردایش ۳۰ دقیقه تکلیف کلاس. اگر کلاس از برنامه جلوتر یا عقب‌تر است، به پشتیبان بگو.'],
+      ['اختیاری', 'معلم خصوصی ریاضی', 'هفته‌ای یک جلسه', 'فقط اگر با وجود کلاس، تا آذر نمرهٔ ریاضی در آزمونک‌ها بالا نرفت.'],
       ['رایگان یا ارزان', 'ویدیوهای فصل‌به‌فصل ریاضی نهم', 'gama.ir', 'برای درسی که مدرسه هنوز نگفته یا سخت بوده.']
     ] },
     { h: 'علوم تجربی', n: '۱۳٪ نمره، نقطهٔ قوت', items: [
@@ -1510,7 +1537,7 @@ var TZPLAN = (function () {
       }).join('') + '</section>';
     }).join('') + '</div>';
     h += '<div class="grid2"><section class="card"><h3>اگر بودجه را اولویت‌بندی کنید</h3><ol class="muted" style="margin:6px 0 0;padding-inline-start:20px">' +
-      ['کتاب هوش درسنامه‌دار', 'کتاب ریاضی تیزهوشان', 'معلم خصوصی ریاضی', 'کتاب تست هوش', 'علوم و فارسی', 'کتاب جامع و ۳۱+۱ استان', 'آزمون‌های آزمایشی'].map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') +
+      ['کتاب هوش درسنامه‌دار', 'کتاب ریاضی تیزهوشان', 'کتاب تست هوش', 'علوم و فارسی', 'کتاب جامع و ۳۱+۱ استان', 'آزمون‌های آزمایشی'].map(function (x) { return '<li>' + T(x) + '</li>'; }).join('') +
       '</ol></section><section class="card"><h3>دو قاعده</h3><p class="muted">' + T('۷۵ سؤال تحصیلی فقط از کتاب‌های درسی نهم طرح می‌شود؛ پس متن کتاب درسی منبع اول است و کتاب کمک‌درسی بعد از آن.') + '</p><p class="muted">' +
       T('از هر درس فقط یک کتاب. کتاب زیاد یعنی هیچ‌کدام تمام نمی‌شود. تعداد تست‌ها طبق معرفی ناشر و فروشنده است و در چاپ جدید ممکن است کمی فرق کند.') + '</p></section></div>';
     VIEW.innerHTML = h;
@@ -1559,6 +1586,9 @@ var TZPLAN = (function () {
       '<fieldset><legend>روزهای کلاس زبان</legend><div class="chips" id="set-eng">' +
       [0, 1, 2, 3, 4, 5].map(function (i) { return '<button type="button" class="chip" data-wd="' + i + '" aria-pressed="' + (s.eng.indexOf(i) >= 0) + '"' + (canEdit ? '' : ' disabled') + '>' + P.WEEKDAYS[i] + '</button>'; }).join('') +
       '</div><p class="hint">حداکثر دو روز. این روزها برنامه سبک‌تر است و درس‌ها خودبه‌خود بین بقیهٔ روزها پخش می‌شوند.</p></fieldset>' +
+      '<fieldset><legend>روزهای کلاس ریاضی</legend><div class="chips" id="set-math">' +
+      [0, 1, 2, 3, 4, 5].map(function (i) { return '<button type="button" class="chip" data-md="' + i + '" aria-pressed="' + (s.math.indexOf(i) >= 0) + '">' + P.WEEKDAYS[i] + '</button>'; }).join('') +
+      '</div><p class="hint">آن روز فقط کلاس و یک کار کوتاه هست. فردایش تکلیف کلاس در برنامه می‌آید.</p></fieldset>' +
       '<fieldset><legend>تاریخ آزمون</legend><div class="frow"><label>روز<select id="set-d" class="inp"' + (canEdit ? '' : ' disabled') + '>' + rangeOpts(1, 31, ej.jd) + '</select></label>' +
       '<label>ماه<select id="set-m" class="inp"' + (canEdit ? '' : ' disabled') + '>' + [2, 3, 4].map(function (m) { return '<option value="' + m + '"' + (m === ej.jm ? ' selected' : '') + '>' + P.MONTHS[m - 1] + '</option>'; }).join('') + '</select></label>' +
       '<label>سال<select id="set-y" class="inp" disabled><option>' + fa(1406) + '</option></select></label></div>' +
@@ -1580,8 +1610,9 @@ var TZPLAN = (function () {
     if (err) { $('#set-err', OVL).textContent = err; return; }
     var examChanged = jKey(jd) !== S.settings.examJ;
     var nm = ($('#set-name', OVL).value || '').trim().slice(0, 20) || 'مینا';
+    var md = Array.prototype.map.call(OVL.querySelectorAll('.chip[data-md][aria-pressed="true"]'), function (b) { return +b.dataset.md; }).sort();
     var sk = OVL.querySelector('.chip.skin[aria-pressed="true"]');
-    var next = { eng: eng.sort(), examJ: jKey(jd), examSet: S.settings.examSet || examChanged, name: nm, skin: sk ? sk.dataset.skin : S.settings.skin };
+    var next = { eng: eng.sort(), math: md, examJ: jKey(jd), examSet: S.settings.examSet || examChanged, name: nm, skin: sk ? sk.dataset.skin : S.settings.skin };
     next.t = now(); DOC.settings = next; touch();
     applySettings(next);
     closeSettings();
@@ -1719,6 +1750,12 @@ var TZPLAN = (function () {
       var on = chip.getAttribute('aria-pressed') === 'true';
       if (!on && OVL.querySelectorAll('.chip[data-wd][aria-pressed="true"]').length >= 2) { $('#set-err', OVL).textContent = 'حداکثر دو روز کلاس زبان را انتخاب کن.'; return; }
       chip.setAttribute('aria-pressed', String(!on)); $('#set-err', OVL).textContent = ''; return;
+    }
+    var mchip = e.target.closest('.chip[data-md]');
+    if (mchip && OVL.contains(mchip)) {
+      var mon = mchip.getAttribute('aria-pressed') === 'true';
+      if (!mon && OVL.querySelectorAll('.chip[data-md][aria-pressed="true"]').length >= 2) { $('#set-err', OVL).textContent = 'حداکثر دو روز کلاس ریاضی را انتخاب کن.'; return; }
+      mchip.setAttribute('aria-pressed', String(!mon)); $('#set-err', OVL).textContent = ''; return;
     }
     var skc = e.target.closest('.chip.skin');
     if (skc && OVL.contains(skc)) {
